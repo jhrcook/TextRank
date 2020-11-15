@@ -1,5 +1,5 @@
-import XCTest
 @testable import textrank
+import XCTest
 
 final class textrankTests: XCTestCase {
     func testExample() {
