@@ -5,6 +5,7 @@ import XCTest
         return [
             testCase(TextRankTests.allTests),
             testCase(TextGraphTests.allTests),
+            testCase(PageRankTests.allTests),
         ]
     }
 #endif

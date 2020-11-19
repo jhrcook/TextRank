@@ -8,13 +8,18 @@
 import Foundation
 
 class TextGraph<T: Hashable> {
-    private(set) var nodes = [T: Float]()
-    private(set) var graph = [T: [T]]()
-    private(set) var weights = [T: [T: Float]]()
+    typealias Nodes = [T: Float]
+    typealias Graph = [T: [T]]
+    typealias Matrix = [T: [T: Float]]
 
-    var startingScore: Float = 0.15
+    var nodes = Nodes()
+    var numberOfLinksFrom = [T: Int]()
+    var graph = Graph() // [to j][from i]
+    var edgeWeights = Matrix() // [from i][to j]
+
+    var startingScore: Float = 0.15 // Replace with < 1/|nodes| >
     var damping: Float = 0.85
-    var convergence: Float = 0.01
+    var convergenceThreshold: Float = 0.001 // 0.0001
 
     var numberOfNodes: Int {
         nodes.count
@@ -26,10 +31,10 @@ class TextGraph<T: Hashable> {
         }
     }
 
-    init(startingScore: Float, damping: Float, convergence: Float) {
+    init(startingScore: Float, damping: Float, convergenceThreshold: Float) {
         self.startingScore = startingScore
         self.damping = damping
-        self.convergence = convergence
+        self.convergenceThreshold = convergenceThreshold
     }
 
     init() {}
@@ -45,6 +50,7 @@ class TextGraph<T: Hashable> {
             initializeNodes(node)
         }
         set(edgeWeight: weight, from: from, to: to)
+        incrementEdgeCount(from: from)
     }
 
     /// Add an edge between two nodes.
@@ -52,11 +58,11 @@ class TextGraph<T: Hashable> {
     ///   - from: source node
     ///   - to: destination node
     private func addEdgeToGraph(from: T, to: T) {
-        if var fromNode = graph[from] {
-            fromNode.append(to)
-            graph[from] = fromNode
+        if var toNode = graph[to] {
+            toNode.append(from)
+            graph[to] = toNode
         } else {
-            graph[from] = [to]
+            graph[to] = [from]
         }
     }
 
@@ -72,9 +78,43 @@ class TextGraph<T: Hashable> {
     ///   - from: source node
     ///   - to: destination node
     private func set(edgeWeight: Float, from: T, to: T) {
-        if weights[from] == nil {
-            weights[from] = [T: Float]()
+        if edgeWeights[from] == nil {
+            edgeWeights[from] = [T: Float]()
         }
-        weights[from]![to] = edgeWeight
+        edgeWeights[from]![to] = edgeWeight
+    }
+
+    /// Increment the count for the number of links from a node.
+    /// - Parameter from: source node
+    private func incrementEdgeCount(from: T) {
+        if let n = numberOfLinksFrom[from] {
+            numberOfLinksFrom[from] = n + 1
+        } else {
+            numberOfLinksFrom[from] = 1
+        }
+    }
+}
+
+// MARK: - Accessing graph information.
+
+extension TextGraph {
+    func edgeWeight(_ from: T, _ to: T) -> Float {
+        return edgeWeights[from]?[to] ?? 0.0
+    }
+
+    func nodesPointingTo(_ node: T) -> [T] {
+        return graph[node] ?? []
+    }
+
+    func numberOfLinksFrom(_ node: T) -> Int {
+        return numberOfLinksFrom[node] ?? 0
+    }
+
+    func totalEdgeWeightFrom(_ node: T) -> Float {
+        if let allEdgeWeights = edgeWeights[node] {
+            return allEdgeWeights.values.reduce(0.0, +)
+        } else {
+            return 0.0
+        }
     }
 }
