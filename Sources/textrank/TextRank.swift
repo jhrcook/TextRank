@@ -23,12 +23,13 @@ class TextRank {
     /// Build the dictionary mapping the modified strings to the original strings parsed from the text.
     func buildSplitTextMapping() {
         let textSplit = split(text, by: summarizeBy)
-        for text in textSplit {
-            if var mappedText = splitText[text] {
-                mappedText.append(text)
-                splitText[modifyForTextComparisons(text)] = mappedText
+        let textSplitCleaned = textSplit.map(modifyForTextComparisons)
+        for (cleanText, originalText) in zip(textSplitCleaned, textSplit) {
+            if var mappedText = splitText[cleanText] {
+                mappedText.append(originalText)
+                splitText[cleanText] = mappedText
             } else {
-                splitText[modifyForTextComparisons(text)] = [text]
+                splitText[cleanText] = [originalText]
             }
         }
     }

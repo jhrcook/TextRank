@@ -7,6 +7,9 @@
 A Swift package that implements the ['TextRank' algorithm](https://web.eecs.umich.edu/~mihalcea/papers/mihalcea.emnlp04.pdf) for summarization and keyword extraction.
 It is based off of the [original Python implementation](https://github.com/summanlp/textrank).
 
+Stop words were acquired from [Ranks NL](https://www.ranks.nl/stopwords).
+Please open an issue to request additional language support.
+
 ---
 
 ### Similar projects
