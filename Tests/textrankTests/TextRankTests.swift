@@ -36,8 +36,27 @@ final class TextRankTests: XCTestCase {
         }
     }
 
+    func testEdgeSimilarities() {
+        let text = "Here is a sentence. Here is another sentence. No connections to other units. Walrus tigers Carrol. Bengal tigers are cool."
+        let textrank = TextRank(text, by: .sentence)
+        textrank.buildSplitTextMapping()
+        textrank.buildGraph()
+
+        let edgeWeights: [String: [String: Float]] = textrank.textGraph.edgeWeights
+
+        // Edges with similarities should have non-zero edge weights.
+        XCTAssert(edgeWeights["here is another sentence"]!["here is a sentence"]! > 0.0)
+        XCTAssert(edgeWeights["bengal tigers are cool"]!["walrus tigers carrol"]! > 0.0)
+        // All edges with this sentence should be of weight 0.
+        XCTAssertNil(edgeWeights["no connections to other units"])
+
+//        let results = textrank.summarise()
+//        print(results)
+    }
+
     static var allTests = [
         ("testBuildSimpleTextRank", testBuildSimpleTextRank),
         ("testSummarizationMethods", testSummarizationMethods),
+        ("testEdgeSimilarities", testEdgeSimilarities),
     ]
 }
