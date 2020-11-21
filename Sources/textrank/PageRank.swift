@@ -11,11 +11,15 @@ extension TextGraph {
     /// Run PageRank on the nodes.
     func executePageRank() {
         var rankedNodes = pageRankStep(nodes)
+//        var counter = 0
         while !hasConverged(initial: rankedNodes, next: nodes) {
             nodes = rankedNodes
             rankedNodes = pageRankStep(nodes)
+//            counter += 1
+//            if counter > 10 {
+//                break
+//            }
         }
-        printNodes()
     }
 
     /// Execute a single step of the PageRank algorithm. Each node is iterated over once.
@@ -38,7 +42,10 @@ extension TextGraph {
     private func score(for u: T, in nodes: Nodes) -> Float {
         var rank: Float = 0
         for v in nodesPointingTo(u) {
-            rank += nodes[v]! * edgeWeight(v, u) / totalEdgeWeightFrom(v)
+            let totalEdgeWeights = totalEdgeWeightFrom(v)
+            if totalEdgeWeights > 0.0 {
+                rank += nodes[v]! * edgeWeight(v, u) / totalEdgeWeights
+            }
         }
         return rank
     }
