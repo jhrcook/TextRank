@@ -39,8 +39,9 @@ class TextRank {
         let text = Array(splitText.keys)
         for i in 0 ..< text.count {
             for j in i + 1 ..< text.count {
-                textGraph.addEdge(from: text[i], to: text[j], weight: Float.random(in: 0 ... 1))
-                textGraph.addEdge(from: text[j], to: text[i], weight: Float.random(in: 0 ... 1))
+                let edgeWeight = similarity(between: text[i], and: text[j])
+                textGraph.addEdge(from: text[i], to: text[j], weight: edgeWeight)
+                textGraph.addEdge(from: text[j], to: text[i], weight: edgeWeight)
             }
         }
     }
@@ -50,6 +51,18 @@ class TextRank {
         if textGraph.nodes.count > 0 {
             textGraph.executePageRank()
         }
+    }
+
+    func similarity(between a: String, and b: String) -> Float {
+        let stopWords = StopWords.english
+        let aWords = Set(splitIntoSubstrings(a, .byWords)).filter { !stopWords.contains($0) }
+        let bWords = Set(splitIntoSubstrings(b, .byWords)).filter { !stopWords.contains($0) }
+
+        if aWords.count + bWords.count == 0 {
+            return 0.0
+        }
+
+        return Float(aWords.intersection(bWords).count) / (log(Float(aWords.count) + 1) + log(Float(bWords.count) + 1))
     }
 
     /// Split the text into its substrings.
@@ -76,6 +89,8 @@ extension TextRank {
     ///   - by: How to split the text.
     /// - Returns: An array of *unique* strings.
     func splitIntoSubstrings(_ text: String, _ by: NSString.EnumerationOptions) -> [String] {
+        if text.isEmpty { return [""] }
+
         var x = [String]()
         text.enumerateSubstrings(in: text.range(of: text)!, options: [by, .localized]) { substring, _, _, _ in
             if let substring = substring, !substring.isEmpty {
