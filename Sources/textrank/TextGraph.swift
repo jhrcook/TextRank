@@ -95,6 +95,10 @@ class TextGraph<T: Hashable> {
             numberOfLinksFrom[from] = 1
         }
     }
+
+    func pruneUnreachableNodes() {
+        // TODO: remove nodes with no edges pointing to or from it
+    }
 }
 
 // MARK: - Accessing graph information.

@@ -16,6 +16,7 @@ class TextRank {
     public func summarise() -> [String: Float] {
         buildSplitTextMapping()
         buildGraph()
+        textGraph.pruneUnreachableNodes() // still needs to be implemented
         runPageRank()
         return textGraph.nodes
     }
@@ -50,6 +51,8 @@ class TextRank {
     func runPageRank() {
         if textGraph.nodes.count > 0 {
             textGraph.executePageRank()
+        } else {
+            print("Cannot execute PageRank on a graph with no nodes.")
         }
     }
 
@@ -57,12 +60,14 @@ class TextRank {
         let stopWords = StopWords.english
         let aWords = Set(splitIntoSubstrings(a, .byWords)).filter { !stopWords.contains($0) }
         let bWords = Set(splitIntoSubstrings(b, .byWords)).filter { !stopWords.contains($0) }
-
-        if aWords.count + bWords.count == 0 {
+        let nWordsInCommon = aWords.intersection(bWords).count
+        let logAWords = log10(Float(aWords.count))
+        let logBWords = log10(Float(bWords.count))
+        if aWords.count == 0 || bWords.count == 0 || nWordsInCommon == 0 || logAWords + logBWords == 0 {
             return 0.0
         }
 
-        return Float(aWords.intersection(bWords).count) / (log(Float(aWords.count) + 1) + log(Float(bWords.count) + 1))
+        return max(Float(nWordsInCommon) / (logAWords + logBWords), 1)
     }
 
     /// Split the text into its substrings.
