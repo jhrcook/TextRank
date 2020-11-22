@@ -45,12 +45,14 @@ class TextGraph<T: Hashable> {
     ///   - to: destination node
     ///   - weight: weight of the edge
     func addEdge(from: T, to: T, weight: Float = 1) {
-        addEdgeToGraph(from: from, to: to)
         for node in [from, to] {
             initializeNodes(node)
         }
-        set(edgeWeight: weight, from: from, to: to)
-        incrementEdgeCount(from: from)
+        if weight > 0 {
+            addEdgeToGraph(from: from, to: to)
+            incrementEdgeCount(from: from)
+            set(edgeWeight: weight, from: from, to: to)
+        }
     }
 
     /// Add an edge between two nodes.
@@ -93,28 +95,58 @@ class TextGraph<T: Hashable> {
             numberOfLinksFrom[from] = 1
         }
     }
+
+    func pruneUnreachableNodes() {
+        // TODO: remove nodes with no edges pointing to or from it
+    }
 }
 
 // MARK: - Accessing graph information.
 
 extension TextGraph {
+    /// Get edge weight between two nodes.
+    /// - Parameters:
+    ///   - from: source node
+    ///   - to: destination node
+    /// - Returns: A float for the weight of the edge.
     func edgeWeight(_ from: T, _ to: T) -> Float {
         return edgeWeights[from]?[to] ?? 0.0
     }
 
+    /// Get the nodes pointing to another node.
+    /// - Parameter node: destination node
+    /// - Returns: A list of the nodes with edges pointing to the destination node.
     func nodesPointingTo(_ node: T) -> [T] {
         return graph[node] ?? []
     }
 
+    /// Get the number of links that eminate from a node.
+    /// - Parameter node: source node
+    /// - Returns: Number of out-bound links.
     func numberOfLinksFrom(_ node: T) -> Int {
         return numberOfLinksFrom[node] ?? 0
     }
 
+    /// Get the total of all edge weights from a node.
+    /// - Parameter node: source node
+    /// - Returns: Sum of all edge weights from the source node.
     func totalEdgeWeightFrom(_ node: T) -> Float {
         if let allEdgeWeights = edgeWeights[node] {
             return allEdgeWeights.values.reduce(0.0, +)
         } else {
             return 0.0
+        }
+    }
+}
+
+// MARK: - Useful for debugging
+
+extension TextGraph {
+    func printEdgeList() {
+        for (from, links) in edgeWeights {
+            for (to, value) in links {
+                print("\(from) - \(to): \(value)")
+            }
         }
     }
 }

@@ -16,6 +16,7 @@ class TextRank {
     public func summarise() -> [String: Float] {
         buildSplitTextMapping()
         buildGraph()
+        textGraph.pruneUnreachableNodes() // still needs to be implemented
         runPageRank()
         return textGraph.nodes
     }
@@ -39,8 +40,9 @@ class TextRank {
         let text = Array(splitText.keys)
         for i in 0 ..< text.count {
             for j in i + 1 ..< text.count {
-                textGraph.addEdge(from: text[i], to: text[j], weight: Float.random(in: 0 ... 1))
-                textGraph.addEdge(from: text[j], to: text[i], weight: Float.random(in: 0 ... 1))
+                let edgeWeight = similarity(between: text[i], and: text[j])
+                textGraph.addEdge(from: text[i], to: text[j], weight: edgeWeight)
+                textGraph.addEdge(from: text[j], to: text[i], weight: edgeWeight)
             }
         }
     }
@@ -49,7 +51,23 @@ class TextRank {
     func runPageRank() {
         if textGraph.nodes.count > 0 {
             textGraph.executePageRank()
+        } else {
+            print("Cannot execute PageRank on a graph with no nodes.")
         }
+    }
+
+    func similarity(between a: String, and b: String) -> Float {
+        let stopWords = StopWords.english
+        let aWords = Set(splitIntoSubstrings(a, .byWords)).filter { !stopWords.contains($0) }
+        let bWords = Set(splitIntoSubstrings(b, .byWords)).filter { !stopWords.contains($0) }
+        let nWordsInCommon = aWords.intersection(bWords).count
+        let logAWords = log10(Float(aWords.count))
+        let logBWords = log10(Float(bWords.count))
+        if aWords.count == 0 || bWords.count == 0 || nWordsInCommon == 0 || logAWords + logBWords == 0 {
+            return 0.0
+        }
+
+        return max(Float(nWordsInCommon) / (logAWords + logBWords), 1)
     }
 
     /// Split the text into its substrings.
@@ -76,6 +94,8 @@ extension TextRank {
     ///   - by: How to split the text.
     /// - Returns: An array of *unique* strings.
     func splitIntoSubstrings(_ text: String, _ by: NSString.EnumerationOptions) -> [String] {
+        if text.isEmpty { return [""] }
+
         var x = [String]()
         text.enumerateSubstrings(in: text.range(of: text)!, options: [by, .localized]) { substring, _, _, _ in
             if let substring = substring, !substring.isEmpty {
