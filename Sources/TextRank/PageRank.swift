@@ -9,16 +9,41 @@ import Foundation
 
 extension TextGraph {
     /// Run PageRank on the nodes.
-    func executePageRank(maximumIterations: Int = 1000) {
+    func executePageRank(maximumIterations: Int = 1000) throws -> PageRankResult {
+        if nodes.count < 2 {
+            throw PageRankError.notEnoughtNodesToRunPageRank(nodes.count)
+        }
+
         var rankedNodes = pageRankStep(nodes)
         var counter = 0
+        var didConverge = true
+
         while !hasConverged(initial: rankedNodes, next: nodes) {
             nodes = rankedNodes
             rankedNodes = pageRankStep(nodes)
             counter += 1
             if counter > maximumIterations {
                 print("PageRank failed to converge after \(maximumIterations) steps - stopping early.")
+                didConverge = false
                 break
+            }
+        }
+
+        return PageRankResult(scores: nodes, didFinishSuccessfully: didConverge)
+    }
+
+    public struct PageRankResult {
+        var scores: [T: Float]
+        var didFinishSuccessfully: Bool
+    }
+
+    public enum PageRankError: Error, LocalizedError {
+        case notEnoughtNodesToRunPageRank(Int)
+
+        var errorDescription: String? {
+            switch self {
+            case let .notEnoughtNodesToRunPageRank(numNodes):
+                return NSLocalizedString("There are not enough nodes (\(numNodes)) in the graph to run PageRank.", comment: "")
             }
         }
     }

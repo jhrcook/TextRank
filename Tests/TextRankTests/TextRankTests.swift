@@ -125,9 +125,16 @@ final class TextRankTests: XCTestCase {
         """
 
         let textrank = TextRank(summarizeBy: .sentence)
-        let pageRankResults = textrank.summarise(wikipediaOfSwifts)
-        for (sentence, value) in pageRankResults.sorted(by: { $0.value > $1.value }) {
-            print("\(sentence.prefix(40)): \(value)")
+//        var pageRankResults: TextGraph<String>.PageRankResult = nil
+
+        do {
+            let pageRankResult = try textrank.summarise(wikipediaOfSwifts)
+            // TEST: Need to write tests for the results.
+            for (sentence, value) in pageRankResult.scores.sorted(by: { $0.value > $1.value }) {
+                print("\(sentence.prefix(40)): \(value)")
+            }
+        } catch {
+            XCTFail("PageRank errored: \(error.localizedDescription)")
         }
     }
 

@@ -18,8 +18,13 @@ class PageRankTests: XCTestCase {
 
         graph.addEdge(from: "A", to: "B")
         graph.addEdge(from: "B", to: "C")
-        graph.executePageRank()
+        var pageRankResult: TextGraph<String>.PageRankResult?
+        do {
+            pageRankResult = try? graph.executePageRank()
+        }
 
+        XCTAssertNotNil(pageRankResult)
+        XCTAssertTrue(pageRankResult!.didFinishSuccessfully)
         XCTAssertEqual(graph.numberOfNodes, 3)
         XCTAssertEqual(graph.numberOfEdges, 2)
         XCTAssertGreaterThan(graph.nodes["B"]!, graph.nodes["A"]!)
@@ -36,8 +41,14 @@ class PageRankTests: XCTestCase {
 
         graph.addEdge(from: "A", to: "B", weight: 10.0)
         graph.addEdge(from: "A", to: "C", weight: 0.5)
-        graph.executePageRank()
 
+        var pageRankResult: TextGraph<String>.PageRankResult?
+        do {
+            pageRankResult = try? graph.executePageRank()
+        }
+
+        XCTAssertNotNil(pageRankResult)
+        XCTAssertTrue(pageRankResult!.didFinishSuccessfully)
         XCTAssertGreaterThan(graph.nodes["B"]!, graph.nodes["A"]!)
         XCTAssertGreaterThan(graph.nodes["C"]!, graph.nodes["A"]!)
         XCTAssertGreaterThan(graph.nodes["B"]!, graph.nodes["C"]!)

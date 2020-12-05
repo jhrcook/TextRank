@@ -5,6 +5,7 @@ class TextRank {
 
     public var summarizeBy: SummarizationOption
     public var textGraph: TextGraph<String>
+    public var maximumPageRankIterations: Int = 1000
 
     // MARK: Internal variables
 
@@ -25,18 +26,18 @@ class TextRank {
     ///   - startingScore: The initial score of each node.
     ///   - damping: The probability of leaving the current 'page' and randomly selecting another.
     ///   - convergenceThreshold: When the difference in scores between iterations is less than this value, the algorithm terminates.
-    public init(summarizeBy: SummarizationOption, startingScore: Float, damping: Float, convergenceThreshold: Float) {
+    public init(summarizeBy: SummarizationOption, startingScore: Float, damping: Float, convergenceThreshold: Float, maximumPageRankIterations: Int = 1000) {
         self.summarizeBy = summarizeBy
         textGraph = TextGraph<String>(startingScore: startingScore, damping: damping, convergenceThreshold: convergenceThreshold)
+        self.maximumPageRankIterations = maximumPageRankIterations
     }
 
     /// Run the summarization algorithm on the text.
     /// - Returns: A dictionary mapping substrings of the original text to their summarization values.
-    public func summarise(_ text: String) -> [String: Float] {
+    public func summarise(_ text: String) throws -> TextGraph<String>.PageRankResult {
         splitText = splitIntoTextMap(text)
         buildGraph(text: Array(splitText.keys))
-        runPageRank()
-        return textGraph.nodes
+        return try textGraph.executePageRank(maximumIterations: maximumPageRankIterations)
     }
 
     /// Build the dictionary mapping the modified strings to the original strings parsed from the text.
@@ -63,15 +64,6 @@ class TextRank {
                 textGraph.addEdge(from: text[i], to: text[j], weight: edgeWeight)
                 textGraph.addEdge(from: text[j], to: text[i], weight: edgeWeight)
             }
-        }
-    }
-
-    /// Run the PageRank algorithm on the text graph.
-    func runPageRank() {
-        if textGraph.nodes.count > 1 {
-            textGraph.executePageRank()
-        } else {
-            print("Cannot execute PageRank on a graph with less than 2 nodes.")
         }
     }
 
