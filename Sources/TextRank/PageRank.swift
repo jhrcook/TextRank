@@ -32,22 +32,6 @@ extension TextGraph {
         return PageRankResult(scores: nodes, didFinishSuccessfully: didConverge)
     }
 
-    public struct PageRankResult {
-        var scores: [T: Float]
-        var didFinishSuccessfully: Bool
-    }
-
-    public enum PageRankError: Error, LocalizedError {
-        case notEnoughtNodesToRunPageRank(Int)
-
-        var errorDescription: String? {
-            switch self {
-            case let .notEnoughtNodesToRunPageRank(numNodes):
-                return NSLocalizedString("There are not enough nodes (\(numNodes)) in the graph to run PageRank.", comment: "")
-            }
-        }
-    }
-
     /// Execute a single step of the PageRank algorithm. Each node is iterated over once.
     /// - Parameter nodes: The nodes of the grpah.
     /// - Returns: The nodes with new scores.
@@ -91,5 +75,43 @@ extension TextGraph {
             print("node \(node): \(value)")
         }
         print("------------")
+    }
+}
+
+public extension TextGraph {
+    struct PageRankResult {
+        var scores: [T: Float]
+        var didFinishSuccessfully: Bool
+
+        func topHits(percent: Float) -> [Hit] {
+            let n = Int((Float(scores.count) * max(min(percent, 1.0), 0.0)).rounded())
+            return topHits(n: n)
+        }
+
+        func topHits(n: Int) -> [Hit] {
+            var top = [Hit]()
+            for (text, score) in scores.sorted(by: { $0.value > $1.value })[0 ..< n] {
+                top.append(Hit(text: text, score: score))
+            }
+            return top
+        }
+
+        struct Hit {
+            var text: T
+            var score: Float
+        }
+    }
+}
+
+public extension TextGraph {
+    enum PageRankError: Error, LocalizedError {
+        case notEnoughtNodesToRunPageRank(Int)
+
+        var errorDescription: String? {
+            switch self {
+            case let .notEnoughtNodesToRunPageRank(numNodes):
+                return NSLocalizedString("There are not enough nodes (\(numNodes)) in the graph to run PageRank.", comment: "")
+            }
+        }
     }
 }
