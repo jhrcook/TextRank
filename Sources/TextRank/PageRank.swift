@@ -78,7 +78,7 @@ extension TextGraph {
     }
 }
 
-public extension TextGraph {
+extension TextGraph {
     struct PageRankResult {
         var scores: [T: Float]
         var didFinishSuccessfully: Bool
@@ -103,7 +103,7 @@ public extension TextGraph {
     }
 }
 
-public extension TextGraph {
+extension TextGraph {
     enum PageRankError: Error, LocalizedError {
         case notEnoughtNodesToRunPageRank(Int)
 
