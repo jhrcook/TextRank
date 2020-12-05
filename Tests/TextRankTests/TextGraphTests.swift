@@ -42,8 +42,50 @@ class TextGraphTests: XCTestCase {
         XCTAssertEqual(graph.nodesPointingTo("A"), [String]())
     }
 
+    func testPruningOfUnreachableNodes() {
+        let graph = TextGraph<String>()
+        graph.addEdge(from: "A", to: "B", weight: 1)
+        graph.addEdge(from: "A", to: "C", weight: 0) // should NOT be added
+        XCTAssertEqual(graph.edgeWeight("A", "B"), 1)
+        XCTAssertEqual(graph.edgeWeight("A", "C"), 0) // no edge weight
+        XCTAssertEqual(graph.edgeWeight("A", "D"), 0) // no edge weight
+        XCTAssertNil(graph.nodes["C"]) // should not find node "C"
+    }
+
+    func testDataAccessingFunctions() {
+        let graph = TextGraph<String>()
+
+        // One edge: A -> B
+        graph.addEdge(from: "A", to: "B")
+        XCTAssertEqual(graph.edgeWeight("A", "B"), 1.0)
+        // Change edge weight: A -> B
+        graph.addEdge(from: "A", to: "B", weight: 2.0)
+        XCTAssertEqual(graph.edgeWeight("A", "B"), 2.0)
+        XCTAssertEqual(graph.totalEdgeWeightFrom("A"), 2.0)
+        XCTAssertEqual(graph.totalEdgeWeightFrom("B"), 0.0)
+        XCTAssertEqual(graph.edgeWeight("B", "A"), 0.0)
+        XCTAssertEqual(graph.numberOfLinksFrom("A"), 1)
+        XCTAssertEqual(graph.nodesPointingTo("B"), ["A"])
+
+        // Two edges: A -> C
+        graph.addEdge(from: "A", to: "C", weight: 5.5)
+        XCTAssertEqual(graph.edgeWeight("A", "B"), 2.0)
+        XCTAssertEqual(graph.edgeWeight("A", "C"), 5.5)
+        XCTAssertEqual(graph.totalEdgeWeightFrom("A"), 7.5)
+        XCTAssertEqual(graph.numberOfLinksFrom("A"), 2)
+
+        // Third edge pointing back from C -> A with different weight.
+        graph.addEdge(from: "C", to: "A", weight: 0.1)
+        XCTAssertEqual(graph.edgeWeight("A", "C"), 5.5)
+        XCTAssertEqual(graph.edgeWeight("C", "A"), 0.1)
+        XCTAssertEqual(graph.totalEdgeWeightFrom("A"), 7.5)
+        XCTAssertEqual(graph.numberOfLinksFrom("A"), 2)
+    }
+
     static var allTests = [
         ("testInitialization", testInitialization),
         ("testAddingEdges", testAddingEdges),
+        ("testPruningOfUnreachableNodes", testPruningOfUnreachableNodes),
+        ("testDataAccessingFunctions", testDataAccessingFunctions),
     ]
 }

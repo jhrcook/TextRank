@@ -35,7 +35,6 @@ class TextRank {
     public func summarise(_ text: String) -> [String: Float] {
         splitText = splitIntoTextMap(text)
         buildGraph(text: Array(splitText.keys))
-        textGraph.pruneUnreachableNodes() // still needs to be implemented
         runPageRank()
         return textGraph.nodes
     }
