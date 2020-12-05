@@ -82,12 +82,12 @@ class TextRank {
     ///   - b: string two
     /// - Returns: A measure of similarity.
     func similarity(between a: String, and b: String) -> Float {
-        let stopWords = StopWords.english
+        let stopWords = StopWords.English
         let aWords = Set(splitIntoSubstrings(a, .byWords)).filter { !stopWords.contains($0) }
         let bWords = Set(splitIntoSubstrings(b, .byWords)).filter { !stopWords.contains($0) }
         let nWordsInCommon = aWords.intersection(bWords).count
-        let logAWords = log10(Float(aWords.count))
-        let logBWords = log10(Float(bWords.count))
+        let logAWords = log(Float(aWords.count))
+        let logBWords = log(Float(bWords.count))
         if aWords.count == 0 || bWords.count == 0 || nWordsInCommon == 0 || logAWords + logBWords == 0 {
             return 0.0
         }

@@ -40,6 +40,42 @@ final class TextRankTests: XCTestCase {
         }
     }
 
+    func testSentenceSimilarityMetric() {
+        func near(_ x: Float, _ y: Float, epsilon: Float = 0.0001) -> Bool {
+            return abs(x - y) <= epsilon
+        }
+
+        let textrank = TextRank(summarizeBy: .sentence)
+
+        // Baisc test.
+        var a = "dog cat mouse elephant"
+        var b = "dog cat elephant"
+        var expectedSimilarity: Float = 3 / (log(4) + log(3))
+        XCTAssertTrue(near(textrank.similarity(between: a, and: b), expectedSimilarity))
+
+        // Test to ignore stopwords.
+        a = "dog cat mouse elephant a the it"
+        b = "dog cat elephant"
+        expectedSimilarity = 3 / (log(4) + log(3))
+        XCTAssertTrue(near(textrank.similarity(between: a, and: b), expectedSimilarity))
+
+        // Test to return 0 if no words in common.
+        a = "dog cat mouse"
+        b = "elephant pony lion"
+        XCTAssertTrue(near(textrank.similarity(between: a, and: b), 0.0))
+
+        // Test to return 0 if no words in common.
+        a = "dog cat mouse"
+        b = ""
+        XCTAssertTrue(near(textrank.similarity(between: a, and: b), 0.0))
+        a = ""
+        b = "dog cat mouse"
+        XCTAssertTrue(near(textrank.similarity(between: a, and: b), 0.0))
+        a = ""
+        b = ""
+        XCTAssertTrue(near(textrank.similarity(between: a, and: b), 0.0))
+    }
+
     func testEdgeSimilarities() {
         let text = "Here is a sentence. Here is another sentence. No connections to other units. Walrus tigers Carrol. Bengal tigers are cool."
         let textrank = TextRank(summarizeBy: .sentence)
@@ -85,6 +121,7 @@ final class TextRankTests: XCTestCase {
     static var allTests = [
         ("testBuildSimpleTextRank", testBuildSimpleTextRank),
         ("testSummarizationMethods", testSummarizationMethods),
+        ("testSentenceSimilarityMetric", testSentenceSimilarityMetric),
         ("testEdgeSimilarities", testEdgeSimilarities),
         ("testPageRankConvergence", testPageRankConvergence),
     ]

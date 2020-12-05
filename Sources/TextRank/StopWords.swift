@@ -9,7 +9,7 @@ import Foundation
 
 struct StopWords {
     // source: https://www.ranks.nl/stopwords
-    static let english: [String] = [
+    static let English: [String] = [
         "a",
         "about",
         "above",
