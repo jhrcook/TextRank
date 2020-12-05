@@ -10,6 +10,15 @@ It is based off of the [original Python implementation](https://github.com/summa
 Stop words were acquired from [Ranks NL](https://www.ranks.nl/stopwords).
 Please open an issue to request additional language support.
 
+## Basic use
+
+Below is an example of summarizing some text in `inputText` by sentence.
+
+```swift
+let textrank = TextRank(summarizeBy: .sentence)
+let summarizedTest: String = textrank.summarise(inputText)
+```
+
 ---
 
 ### Similar projects
