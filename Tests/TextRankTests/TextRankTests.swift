@@ -14,6 +14,19 @@ final class TextRankTests: XCTestCase {
         XCTAssertEqual(textrank.summarizeBy, TextRank.SummarizationOption.sentence)
     }
 
+    func testTextSplittingAndPreparation() {
+        let textrank = TextRank(summarizeBy: .sentence)
+        XCTAssertEqual(textrank.modifyForTextComparisons("   HERE   "), "here")
+        XCTAssertEqual(textrank.modifyForTextComparisons("   here   "), "here")
+        XCTAssertEqual(textrank.modifyForTextComparisons("   here."), "here")
+        XCTAssertEqual(textrank.modifyForTextComparisons("   here   there   "), "here   there")
+        XCTAssertEqual(textrank.modifyForTextComparisons("   here\n"), "here")
+
+        XCTAssertEqual(Set(textrank.splitIntoSubstrings("here there", .byWords)), Set(["here", "there"]))
+        XCTAssertEqual(textrank.splitIntoSubstrings("here there", .bySentences), ["here there"])
+        XCTAssertEqual(Set(textrank.splitIntoSubstrings("Here there. Way up high.", .bySentences)), Set(["Here there. ", "Way up high."]))
+    }
+
     func testSummarizationMethods() {
         let text = """
             Welcome to the Swift community. Together we are working to build a programming language to empower everyone to turn their ideas into apps on any platform.
@@ -120,6 +133,7 @@ final class TextRankTests: XCTestCase {
 
     static var allTests = [
         ("testBuildSimpleTextRank", testBuildSimpleTextRank),
+        ("testTextSplittingAndPreparation", testTextSplittingAndPreparation),
         ("testSummarizationMethods", testSummarizationMethods),
         ("testSentenceSimilarityMetric", testSentenceSimilarityMetric),
         ("testEdgeSimilarities", testEdgeSimilarities),
