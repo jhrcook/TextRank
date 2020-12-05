@@ -1,43 +1,63 @@
 import Foundation
 
 class TextRank {
-    let text: String
-    let summarizeBy: SummarizationOption
-    var textGraph = TextGraph<String>()
+    // MARK: User-facing variables
+
+    public var summarizeBy: SummarizationOption
+    public var textGraph: TextGraph<String>
+
+    // MARK: Internal variables
+
     var splitText = [String: [String]]() // modified sentence: original sentence
 
-    public init(_ text: String, by: SummarizationOption) {
-        self.text = text
-        summarizeBy = by
+    // MARK: Initializers
+
+    /// Initialize a `TextRank` object by declaring how to split the text.
+    /// - Parameter summarizeBy: A single unit of the text.
+    public init(summarizeBy: SummarizationOption) {
+        self.summarizeBy = summarizeBy
+        textGraph = TextGraph<String>()
+    }
+
+    /// Initlize a `TextRank` object by declaring how to split the text and the parameters for the PageRank algorithm.
+    /// - Parameters:
+    ///   - summarizeBy: A single unit of the text.
+    ///   - startingScore: The initial score of each node.
+    ///   - damping: The probability of leaving the current 'page' and randomly selecting another.
+    ///   - convergenceThreshold: When the difference in scores between iterations is less than this value, the algorithm terminates.
+    public init(summarizeBy: SummarizationOption, startingScore: Float, damping: Float, convergenceThreshold: Float) {
+        self.summarizeBy = summarizeBy
+        textGraph = TextGraph<String>(startingScore: startingScore, damping: damping, convergenceThreshold: convergenceThreshold)
     }
 
     /// Run the summarization algorithm on the text.
     /// - Returns: A dictionary mapping substrings of the original text to their summarization values.
-    public func summarise() -> [String: Float] {
-        buildSplitTextMapping()
-        buildGraph()
+    public func summarise(_ text: String) -> [String: Float] {
+        splitText = splitIntoTextMap(text)
+        buildGraph(text: Array(splitText.keys))
         textGraph.pruneUnreachableNodes() // still needs to be implemented
         runPageRank()
         return textGraph.nodes
     }
 
     /// Build the dictionary mapping the modified strings to the original strings parsed from the text.
-    func buildSplitTextMapping() {
+    func splitIntoTextMap(_ text: String) -> [String: [String]] {
         let textSplit = split(text, by: summarizeBy)
         let textSplitCleaned = textSplit.map(modifyForTextComparisons)
+        var textSplitMap = [String: [String]]()
         for (cleanText, originalText) in zip(textSplitCleaned, textSplit) {
-            if var mappedText = splitText[cleanText] {
+            if var mappedText = textSplitMap[cleanText] {
                 mappedText.append(originalText)
-                splitText[cleanText] = mappedText
+                textSplitMap[cleanText] = mappedText
             } else {
-                splitText[cleanText] = [originalText]
+                textSplitMap[cleanText] = [originalText]
             }
         }
+        return textSplitMap
     }
 
     /// Build the text graph as the connection of all substrings of the parsed text.
-    func buildGraph() {
-        let text = Array(splitText.keys)
+    func buildGraph(text: [String]) {
         for i in 0 ..< text.count {
             for j in i + 1 ..< text.count {
                 let edgeWeight = similarity(between: text[i], and: text[j])
@@ -49,13 +69,18 @@ class TextRank {
 
     /// Run the PageRank algorithm on the text graph.
     func runPageRank() {
-        if textGraph.nodes.count > 0 {
+        if textGraph.nodes.count > 1 {
             textGraph.executePageRank()
         } else {
-            print("Cannot execute PageRank on a graph with no nodes.")
+            print("Cannot execute PageRank on a graph with less than 2 nodes.")
         }
     }
 
+    /// Calculate the similarity between two strings.
+    /// - Parameters:
+    ///   - a: string one
+    ///   - b: string two
+    /// - Returns: A measure of similarity.
     func similarity(between a: String, and b: String) -> Float {
         let stopWords = StopWords.english
         let aWords = Set(splitIntoSubstrings(a, .byWords)).filter { !stopWords.contains($0) }

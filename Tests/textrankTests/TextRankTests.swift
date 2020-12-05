@@ -6,7 +6,12 @@ final class TextRankTests: XCTestCase {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct
         // results.
-        XCTAssertEqual(TextRank("Hello, World!", by: .sentence).text, "Hello, World!")
+        var textrank = TextRank(summarizeBy: .sentence)
+        XCTAssertEqual(textrank.summarizeBy, TextRank.SummarizationOption.sentence)
+        textrank = TextRank(summarizeBy: .word)
+        XCTAssertEqual(textrank.summarizeBy, TextRank.SummarizationOption.word)
+        textrank.summarizeBy = .sentence
+        XCTAssertEqual(textrank.summarizeBy, TextRank.SummarizationOption.sentence)
     }
 
     func testSummarizationMethods() {
@@ -18,18 +23,17 @@ final class TextRankTests: XCTestCase {
             For students, learning Swift has been a great introduction to modern programming concepts and best practices. And because it is open, their Swift skills will be able to be applied to an even broader range of platforms, from mobile devices to the desktop to the cloud.
         """
 
-        let textrank = TextRank(text, by: .sentence)
+        let textrank = TextRank(summarizeBy: .sentence)
+        let splitText = textrank.splitIntoTextMap(text)
 
-        textrank.buildSplitTextMapping()
-
-        for (key, value) in textrank.splitText {
+        for (key, value) in splitText {
             XCTAssertTrue(key == key.lowercased())
             XCTAssertTrue(key == key.trimmingCharacters(in: .whitespacesAndNewlines))
             XCTAssertTrue(key == key.trimmingCharacters(in: .punctuationCharacters))
             XCTAssertTrue(value.count > 0)
         }
 
-        textrank.buildGraph()
+        textrank.buildGraph(text: Array(splitText.keys))
 
         for string in textrank.splitText.keys {
             XCTAssertTrue(textrank.textGraph.nodes.keys.contains(string))
@@ -38,9 +42,9 @@ final class TextRankTests: XCTestCase {
 
     func testEdgeSimilarities() {
         let text = "Here is a sentence. Here is another sentence. No connections to other units. Walrus tigers Carrol. Bengal tigers are cool."
-        let textrank = TextRank(text, by: .sentence)
-        textrank.buildSplitTextMapping()
-        textrank.buildGraph()
+        let textrank = TextRank(summarizeBy: .sentence)
+        let splitText = textrank.splitIntoTextMap(text)
+        textrank.buildGraph(text: Array(splitText.keys))
 
         let edgeWeights: [String: [String: Float]] = textrank.textGraph.edgeWeights
 
@@ -71,8 +75,8 @@ final class TextRankTests: XCTestCase {
         Swifts as a family have smaller egg clutches and much longer and more variable incubation and fledging times than passerines with similarly sized eggs, resembling tubenoses in these developmental factors. Young birds reach a maximum weight heavier than their parents; they can cope with not being fed for long periods of time, and delay their feather growth when undernourished. Swifts and seabirds have generally secure nest sites, but their food sources are unreliable, whereas passerines are vulnerable in the nest but food is usually plentiful.[14][15]
         """
 
-        let textrank = TextRank(wikipediaOfSwifts, by: .sentence)
-        let pageRankResults = textrank.summarise()
+        let textrank = TextRank(summarizeBy: .sentence)
+        let pageRankResults = textrank.summarise(wikipediaOfSwifts)
         for (sentence, value) in pageRankResults.sorted(by: { $0.value > $1.value }) {
             print("\(sentence.prefix(40)): \(value)")
         }
