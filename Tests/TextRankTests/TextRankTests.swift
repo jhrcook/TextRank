@@ -1,4 +1,4 @@
-@testable import textrank
+@testable import TextRank
 import XCTest
 
 final class TextRankTests: XCTestCase {

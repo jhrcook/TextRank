@@ -1,7 +1,7 @@
 import XCTest
 
-import textrankTests
+import TextRankTests
 
 var tests = [XCTestCaseEntry]()
-tests += textrankTests.allTests()
+tests += TextRankTests.allTests()
 XCTMain(tests)

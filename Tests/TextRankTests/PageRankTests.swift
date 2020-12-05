@@ -5,7 +5,7 @@
 //  Created by Joshua on 11/17/20.
 //
 
-@testable import textrank
+@testable import TextRank
 import XCTest
 
 class PageRankTests: XCTestCase {
