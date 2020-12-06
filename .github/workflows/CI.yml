@@ -36,4 +36,5 @@ jobs:
         os: [macos-10.15, macos-11.0]
     steps:
       - uses: actions/checkout@v2
+      - run: swift --version
       - run: swift test --parallel
