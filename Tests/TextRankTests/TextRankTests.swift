@@ -112,26 +112,91 @@ final class TextRankTests: XCTestCase {
 
     func testPageRankConvergence() {
         let wikipediaOfSwifts = """
-        The swifts are a family, Apodidae, of highly aerial birds. They are superficially similar to swallows, but are not closely related to any passerine species. Swifts are placed in the order Apodiformes with hummingbirds. The treeswifts are closely related to the true swifts, but form a separate family, the Hemiprocnidae.
-        Resemblances between swifts and swallows are due to convergent evolution, reflecting similar life styles based on catching insects in flight.[citation needed]
-        The family name, Apodidae, is derived from the Greek ἄπους (ápous), meaning "footless", a reference to the small, weak legs of these most aerial of birds.[1][2] The tradition of depicting swifts without feet continued into the Middle Ages, as seen in the heraldic martlet.
-        Swifts are among the fastest of birds, and larger species like the white-throated needletail have been reported travelling at up to 169 km/h (105 mph)[6] in level flight. Even the common swift can cruise at a maximum speed of 31 metres per second (112 km/h; 70 mph). In a single year the common swift can cover at least 200,000 km.[7] and in a lifetime, about two million kilometers; enough to fly to the Moon five times over.[8]
-        The wingtip bones of swiftlets are of proportionately greater length than those of most other birds. Changing the angle between the bones of the wingtips and forelimbs allows swifts to alter the shape and area of their wings to increase their efficiency and maneuverability at various speeds.[9] They share with their relatives the hummingbirds a unique ability to rotate their wings from the base, allowing the wing to remain rigid and fully extended and derive power on both the upstroke and downstroke.[10] The downstroke produces both lift and thrust, while the upstroke produces a negative thrust (drag) that is 60% of the thrust generated during the downstrokes, but simultaneously it contributes lift that is also 60% of what is produced during the downstroke. This flight arrangement might benefit the bird's control and maneuverability in the air.[11]
-        The swiftlets or cave swiftlets have developed a form of echolocation for navigating through dark cave systems where they roost.[12] One species, the Three-toed swiftlet, has recently been found to use this navigation at night outside its cave roost too.
-        Swifts occur on all the continents except Antarctica, but not in the far north, in large deserts, or on many oceanic islands.[13] The swifts of temperate regions are strongly migratory and winter in the tropics. Some species can survive short periods of cold weather by entering torpor, a state similar to hibernation.[12]
-        Many have a characteristic shape, with a short forked tail and very long swept-back wings that resemble a crescent or a boomerang. The flight of some species is characterised by a distinctive "flicking" action quite different from swallows. Swifts range in size from the pygmy swiftlet (Collocalia troglodytes), which weighs 5.4 g and measures 9 cm (3.5 in) long, to the purple needletail (Hirundapus celebensis), which weighs 184 g (6.5 oz) and measures 25 cm (9.8 in) long.[12]
-        The nest of many species is glued to a vertical surface with saliva, and the genus Aerodramus use only that substance, which is the basis for bird's nest soup. The eggs hatch after 19 to 23 days, and the young leave the nest after a further six to eight weeks. Both parents assist in raising the young.[12]
-        Swifts as a family have smaller egg clutches and much longer and more variable incubation and fledging times than passerines with similarly sized eggs, resembling tubenoses in these developmental factors. Young birds reach a maximum weight heavier than their parents; they can cope with not being fed for long periods of time, and delay their feather growth when undernourished. Swifts and seabirds have generally secure nest sites, but their food sources are unreliable, whereas passerines are vulnerable in the nest but food is usually plentiful.[14][15]
+        The swifts are a family, Apodidae, of highly aerial birds.
+        They are superficially similar to swallows, but are not closely related to any passerine species.
+        Swifts are placed in the order Apodiformes with hummingbirds.
+        The treeswifts are closely related to the true swifts, but form a separate family, the Hemiprocnidae.
+        Resemblances between swifts and swallows are due to convergent evolution, reflecting similar life styles based on catching insects in flight.
+        The family name, Apodidae, is derived from the Greek ἄπους (ápous), meaning 'footless', a reference to the small, weak legs of these most aerial of birds.
+        The tradition of depicting swifts without feet continued into the Middle Ages, as seen in the heraldic martlet.
+        Swifts are among the fastest of birds, and larger species like the white-throated needletail have been reported travelling at up to 169 km/h (105 mph) in level flight.
+        Even the common swift can cruise at a maximum speed of 31 metres per second.
+        In a single year the common swift can cover at least 200,000 km and in a lifetime, about two million kilometers; enough to fly to the Moon five times over.
+        The wingtip bones of swiftlets are of proportionately greater length than those of most other birds.
+        Changing the angle between the bones of the wingtips and forelimbs allows swifts to alter the shape and area of their wings to increase their efficiency and maneuverability at various speeds.
+        They share with their relatives the hummingbirds a unique ability to rotate their wings from the base, allowing the wing to remain rigid and fully extended and derive power on both the upstroke and downstroke.
+        The downstroke produces both lift and thrust, while the upstroke produces a negative thrust (drag) that is 60% of the thrust generated during the downstrokes, but simultaneously it contributes lift that is also 60% of what is produced during the downstroke.
+        This flight arrangement might benefit the bird's control and maneuverability in the air.
+        The swiftlets or cave swiftlets have developed a form of echolocation for navigating through dark cave systems where they roost.
+        One species, the Three-toed swiftlet, has recently been found to use this navigation at night outside its cave roost too.
+        Swifts occur on all the continents except Antarctica, but not in the far north, in large deserts, or on many oceanic islands.
+        The swifts of temperate regions are strongly migratory and winter in the tropics.
+        Some species can survive short periods of cold weather by entering torpor, a state similar to hibernation.
+        Many have a characteristic shape, with a short forked tail and very long swept-back wings that resemble a crescent or a boomerang.
+        The flight of some species is characterised by a distinctive 'flicking' action quite different from swallows.
+        Swifts range in size from the pygmy swiftlet (Collocalia troglodytes), which weighs 54 g and measures 9 cm (35 in) long, to the purple needletail (Hirundapus celebensis), which weighs 184 g (65 oz) and measures 25 cm (98 in) long.
+        The nest of many species is glued to a vertical surface with saliva, and the genus Aerodramus use only that substance, which is the basis for bird's nest soup.
+        The eggs hatch after 19 to 23 days, and the young leave the nest after a further six to eight weeks.
+        Both parents assist in raising the young.
+        Swifts as a family have smaller egg clutches and much longer and more variable incubation and fledging times than passerines with similarly sized eggs, resembling tubenoses in these developmental factors.
+        Young birds reach a maximum weight heavier than their parents; they can cope with not being fed for long periods of time, and delay their feather growth when undernourished.
+        Swifts and seabirds have generally secure nest sites, but their food sources are unreliable, whereas passerines are vulnerable in the nest but food is usually plentiful.
         """
 
-        let textrank = TextRank(summarizeBy: .sentence)
-//        var pageRankResults: TextGraph<String>.PageRankResult = nil
+        struct KnownResults {
+            let index: Int
+            let score: Float
+        }
 
+        let knownScores: [String: KnownResults] = [
+            "swifts are among the fastest of birds, and larger species like the white-throated needletail have been reported travelling at up to 169 km/h (105 mph) in level flight": KnownResults(index: 1, score: 0.30),
+            "changing the angle between the bones of the wingtips and forelimbs allows swifts to alter the shape and area of their wings to increase their efficiency and maneuverability at various speeds": KnownResults(index: 5, score: 0.24),
+            "resemblances between swifts and swallows are due to convergent evolution, reflecting similar life styles based on catching insects in flight": KnownResults(index: 3, score: 0.27),
+            "swifts as a family have smaller egg clutches and much longer and more variable incubation and fledging times than passerines with similarly sized eggs, resembling tubenoses in these developmental factors": KnownResults(index: 2, score: 0.28),
+            "the treeswifts are closely related to the true swifts, but form a separate family, the hemiprocnidae": KnownResults(index: 4, score: 0.24),
+            "swifts range in size from the pygmy swiftlet (collocalia troglodytes), which weighs 54 g and measures 9 cm (35 in) long, to the purple needletail (hirundapus celebensis), which weighs 184 g (65 oz) and measures 25 cm (98 in) long": KnownResults(index: 6, score: 0.21),
+            "the swifts are a family, apodidae, of highly aerial birds": KnownResults(index: 0, score: 0.30),
+            "young birds reach a maximum weight heavier than their parents; they can cope with not being fed for long periods of time, and delay their feather growth when undernourished": KnownResults(index: 9, score: 0.19),
+            "swifts and seabirds have generally secure nest sites, but their food sources are unreliable, whereas passerines are vulnerable in the nest but food is usually plentiful": KnownResults(index: 11, score: 0.19),
+            "swifts occur on all the continents except antarctica, but not in the far north, in large deserts, or on many oceanic islands": KnownResults(index: 16, score: 0.16),
+            "swifts are placed in the order apodiformes with hummingbirds": KnownResults(index: 10, score: 0.19),
+            "some species can survive short periods of cold weather by entering torpor, a state similar to hibernation": KnownResults(index: 23, score: 0.13),
+            "the nest of many species is glued to a vertical surface with saliva, and the genus aerodramus use only that substance, which is the basis for bird's nest soup": KnownResults(index: 13, score: 0.17),
+            "the swifts of temperate regions are strongly migratory and winter in the tropics": KnownResults(index: 14, score: 0.17),
+            "the tradition of depicting swifts without feet continued into the middle ages, as seen in the heraldic martlet": KnownResults(index: 17, score: 0.16),
+            "many have a characteristic shape, with a short forked tail and very long swept-back wings that resemble a crescent or a boomerang": KnownResults(index: 24, score: 0.11),
+            "one species, the three-toed swiftlet, has recently been found to use this navigation at night outside its cave roost too": KnownResults(index: 15, score: 0.16),
+            "the flight of some species is characterised by a distinctive 'flicking' action quite different from swallows": KnownResults(index: 22, score: 0.14),
+            "they are superficially similar to swallows, but are not closely related to any passerine species": KnownResults(index: 8, score: 0.20),
+            "the wingtip bones of swiftlets are of proportionately greater length than those of most other birds": KnownResults(index: 18, score: 0.15),
+            "the family name, apodidae, is derived from the greek ἄπους (ápous), meaning 'footless', a reference to the small, weak legs of these most aerial of birds": KnownResults(index: 19, score: 0.15),
+            "the eggs hatch after 19 to 23 days, and the young leave the nest after a further six to eight weeks": KnownResults(index: 26, score: 0.09),
+            "they share with their relatives the hummingbirds a unique ability to rotate their wings from the base, allowing the wing to remain rigid and fully extended and derive power on both the upstroke and downstroke": KnownResults(index: 20, score: 0.14),
+            "in a single year the common swift can cover at least 200,000 km and in a lifetime, about two million kilometers; enough to fly to the moon five times over": KnownResults(index: 12, score: 0.18),
+            "this flight arrangement might benefit the bird's control and maneuverability in the air": KnownResults(index: 21, score: 0.14),
+            "even the common swift can cruise at a maximum speed of 31 metres per second": KnownResults(index: 7, score: 0.20),
+            "the swiftlets or cave swiftlets have developed a form of echolocation for navigating through dark cave systems where they roost": KnownResults(index: 25, score: 0.10),
+            "both parents assist in raising the young": KnownResults(index: 27, score: 0.07),
+            "the downstroke produces both lift and thrust, while the upstroke produces a negative thrust (drag) that is 60% of the thrust generated during the downstrokes, but simultaneously it contributes lift that is also 60% of what is produced during the downstroke": KnownResults(index: 28, score: 0.05),
+        ]
+
+        func near(_ x: Float, _ y: Float, epsilon: Float = 0.0001) -> Bool {
+            return abs(x - y) <= epsilon
+        }
+
+        let textrank = TextRank(summarizeBy: .sentence)
         do {
             let pageRankResult = try textrank.summarise(wikipediaOfSwifts)
-            // TEST: Need to write tests for the results.
-            for (sentence, value) in pageRankResult.scores.sorted(by: { $0.value > $1.value }) {
-                print("\(sentence.prefix(40)): \(value)")
+            XCTAssertTrue(pageRankResult.didFinishSuccessfully)
+            let tophits = pageRankResult.topHits(percent: 1.00)
+            for (i, top) in tophits.enumerated() {
+                // print("\"\(top.text)\": KnownResults(index: , score: 0.),")
+                let known_idx = knownScores[top.text]!.index
+                XCTAssertTrue(abs(known_idx - i) <= 1)
+            }
+            for top in tophits {
+                let known_score = knownScores[top.text]!.score
+                XCTAssertTrue(near(known_score, top.score, epsilon: 0.1))
             }
         } catch {
             XCTFail("PageRank errored: \(error.localizedDescription)")
