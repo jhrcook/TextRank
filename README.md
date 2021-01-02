@@ -5,20 +5,13 @@
 [![SwiftFormat](https://img.shields.io/badge/SwfitFormat-enabled-A166E6)](https://github.com/nicklockwood/SwiftFormat)
 ![GitHub Action test](https://github.com/jhrcook/TextRank/workflows/Test%20Swift%20package/badge.svg)
 
+> This package is still in development and non-functional.
+
 A Swift package that implements the ['TextRank' algorithm](https://web.eecs.umich.edu/~mihalcea/papers/mihalcea.emnlp04.pdf) for summarization and keyword extraction.
 It is based off of the [original Python implementation](https://github.com/summanlp/textrank).
 
 Stop words were acquired from [Ranks NL](https://www.ranks.nl/stopwords).
 Please open an issue to request additional language support.
-
-## Basic use
-
-Below is an example of summarizing some text in `inputText` by sentence.
-
-```swift
-let textrank = TextRank(summarizeBy: .sentence)
-let summarizedTest: String = textrank.summarise(inputText)
-```
 
 ---
 
