@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TextRank {
+class TextRank {
     var text: String {
         didSet {
             sentences = TextRank.splitIntoSentences(text)
