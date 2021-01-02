@@ -8,11 +8,13 @@
 import Foundation
 
 class TextGraph {
-    var damping: Float
+    typealias NodeList = [Sentence: Float]
 
-    var nodes = [Sentence: Float]()
-    var edgeWeights = [Set<Sentence>: Float]()
-    var connectingEdgeCounts = [Sentence: Int]()
+    var damping: Float
+    let epsilon: Float = 0.0001
+
+    var nodes = NodeList()
+    var edges = [Sentence: NodeList]()
 
     init(damping: Float = 0.85) {
         self.damping = damping
@@ -28,9 +30,9 @@ class TextGraph {
         if weight > 0 || force {
             for n in [a, b] {
                 setValue(of: n)
-                incrementEdgeCount(of: n)
             }
-            setEdgeWeight(a, b, weight: weight)
+            setEdgeWeight(from: a, to: b, weight: weight)
+            setEdgeWeight(from: b, to: a, weight: weight)
         }
     }
 
@@ -40,23 +42,18 @@ class TextGraph {
         nodes[node] = value
     }
 
-    /// Increment the edge count for a node.
-    /// - Parameter node: The node with a new edge.
-    func incrementEdgeCount(of node: Sentence) {
-        if let currentCount = connectingEdgeCounts[node] {
-            connectingEdgeCounts[node] = currentCount + 1
-        } else {
-            connectingEdgeCounts[node] = 1
-        }
-    }
-
     /// Set the weight of the edge connecting two nodes.
     /// - Parameters:
     ///   - a: First node.
     ///   - b: Second node.
     ///   - weight: Edge weight.
-    func setEdgeWeight(_ a: Sentence, _ b: Sentence, weight: Float) {
-        edgeWeights[Set([a, b])] = weight
+    func setEdgeWeight(from a: Sentence, to b: Sentence, weight: Float) {
+        if var existingEdges = edges[a] {
+            existingEdges[b] = weight
+            edges[a] = existingEdges
+        } else {
+            edges[a] = [b: weight]
+        }
     }
 
     /// Get the value of a node.
@@ -72,13 +69,74 @@ class TextGraph {
     ///   - b: Second node.
     /// - Returns: Returns the edge weight between two nodes or 0 if there is no edge.
     func getEdgeWeight(from a: Sentence, to b: Sentence) -> Float {
-        return edgeWeights[Set([a, b])] ?? 0.0
+        if let edges = edges[a] {
+            return edges[b] ?? 0.0
+        }
+        return 0.0
     }
 
-    /// Get the number of edges from a node.
+    /// Get the total weights of the edges from a node.
     /// - Parameter node: The node.
-    /// - Returns: The number of edges or 0 if none exist.
+    /// - Returns: The summed edge weight or 0 if none exist.
+    func getTotalEdgeWeight(of node: Sentence) -> Float {
+        if let edges = edges[node] {
+            return edges.values.reduce(0.0, +)
+        }
+        return 0.0
+    }
+
     func getNumberOfEdges(from node: Sentence) -> Int {
-        return connectingEdgeCounts[node] ?? 0
+        return edges[node]?.count ?? 0
+    }
+}
+
+extension TextGraph {
+    func runPageRank(maximumIterations: Int = 100) {
+        setInitialNodeValues()
+        for _ in 0 ..< maximumIterations {
+            let newNodes = runRoundOfPageRank(with: nodes)
+            if hasConverged(nodes, newNodes) {
+                return
+            }
+            nodes = newNodes
+        }
+        // Need to deal with return type and if has converged.
+    }
+
+    func runRoundOfPageRank(with nodes: NodeList) -> NodeList {
+        var nextNodes = nodes
+        let dampingConstant: Float = (1 - damping) / Float(nodes.count)
+        for n in nodes.keys {
+            let score = getSumOfNeighborValues(n, in: nodes)
+            let nodeEdgeWeights = getTotalEdgeWeight(of: n)
+            if nodeEdgeWeights > 0.0 {
+                nextNodes[n] = dampingConstant + damping * score / nodeEdgeWeights
+            } else {
+                nextNodes[n] = 0.0
+            }
+        }
+        return nextNodes
+    }
+
+    func getSumOfNeighborValues(_ node: Sentence, in nodelist: NodeList) -> Float {
+        edges[node]?.keys.map { nodelist[$0] ?? 0.0 }.reduce(0.0, +) ?? 0.0
+    }
+
+    func setInitialNodeValues() {
+        let initialValue: Float = 1.0 / Float(nodes.count)
+        for n in nodes.keys {
+            nodes[n] = initialValue
+        }
+    }
+
+    func hasConverged(_ n0: [Sentence: Float], _ n1: [Sentence: Float]) -> Bool {
+        for (node, node0value) in n0 {
+            if let node1Value = n1[node] {
+                if abs(node0value - node1Value) > epsilon {
+                    return false
+                }
+            }
+        }
+        return true
     }
 }
