@@ -38,8 +38,8 @@ class TextRank {
 extension TextRank {
     func similarity(_ a: inout Sentence, _ b: inout Sentence) -> Float {
         if a.words.count == 0 || b.words.count == 0 { return 0.0 }
-        let commonWordCount = Float(a.words.union(b.words).count)
-        let totalWordCount = log10(Float(a.words.count)) + log10(Float(a.words.count))
+        let commonWordCount = Float(a.words.intersection(b.words).count)
+        let totalWordCount = log10(Float(a.words.count)) + log10(Float(b.words.count))
         return totalWordCount == 0.0 ? 0.0 : commonWordCount / totalWordCount
     }
 }
