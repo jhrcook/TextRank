@@ -9,11 +9,17 @@ import Foundation
 
 struct Sentence: Hashable {
     let text: String
-    var words: [String]
+
+    lazy var allWords: [String] = {
+        Sentence.clean(self.text)
+    }()
+
+    lazy var words: Set<String> = {
+        Sentence.removeStopWords(from: self.allWords)
+    }()
 
     init(text: String) {
         self.text = text
-        words = Sentence.clean(text)
     }
 
     func hash(into hasher: inout Hasher) {
@@ -29,6 +35,12 @@ struct Sentence: Hashable {
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .trimmingCharacters(in: .punctuationCharacters)
             .words
+    }
+
+    static func removeStopWords(from w: [String]) -> Set<String> {
+        var wordSet = Set(w)
+        wordSet.subtract(Stopwords.English)
+        return wordSet
     }
 }
 
