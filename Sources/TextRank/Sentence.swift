@@ -20,12 +20,21 @@ struct Sentence: Hashable {
         hasher.combine(text)
     }
 
+    /// Clean a string.
+    /// - Parameter s: Original text
+    /// - Returns: The same text with leading and trailing whitespaces or punctuation removed.
     static func clean(_ s: String) -> [String] {
         return s
             .lowercased()
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .trimmingCharacters(in: .punctuationCharacters)
             .words
+    }
+}
+
+extension Sentence: CustomStringConvertible {
+    var description: String {
+        text
     }
 }
 

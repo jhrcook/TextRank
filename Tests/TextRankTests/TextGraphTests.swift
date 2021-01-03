@@ -17,7 +17,7 @@ class TextGraphTests: XCTestCase {
         let nodeA = Sentence(text: "node a")
         let nodeB = Sentence(text: "node b")
         // Add edge between two nodes.
-        graph.addEdge(from: nodeA, to: nodeB)
+        try? graph.addEdge(from: nodeA, to: nodeB)
 
         // Check sizes of graph attributes.
         XCTAssertEqual(graph.nodes.count, 2)
@@ -31,13 +31,16 @@ class TextGraphTests: XCTestCase {
         XCTAssertEqual(graph.getTotalEdgeWeight(of: nodeB), 1.0)
 
         // Adding the same edge should not have any effect.
-        graph.addEdge(from: nodeA, to: nodeB)
+        try? graph.addEdge(from: nodeA, to: nodeB)
         XCTAssertEqual(graph.nodes.count, 2)
         XCTAssertEqual(graph.edges.count, 2)
 
         // Change weight of an edge.
-        graph.addEdge(from: nodeA, to: nodeB, withWeight: 2.5)
+        try? graph.addEdge(from: nodeA, to: nodeB, withWeight: 2.5)
         XCTAssertEqual(graph.getEdgeWeight(from: nodeA, to: nodeB), 2.5)
+
+        // Adding an edge with negative weight should throw an error.
+        XCTAssertThrowsError(try graph.addEdge(from: nodeA, to: nodeB, withWeight: -1.0))
     }
 
     func testAddingMultipleEdges() {
@@ -46,7 +49,7 @@ class TextGraphTests: XCTestCase {
 
         // Add an edge from [A] to all others.
         for node in nodes[1 ..< nodes.count] {
-            graph.addEdge(from: nodes[0], to: node)
+            try? graph.addEdge(from: nodes[0], to: node)
         }
 
         XCTAssertEqual(graph.nodes.count, nodes.count)
@@ -56,10 +59,54 @@ class TextGraphTests: XCTestCase {
         XCTAssertEqual(graph.getEdgeWeight(from: nodes[0], to: nodes[1]), 1.0)
 
         // Add edge: [B]--[C]
-        graph.addEdge(from: nodes[1], to: nodes[2], withWeight: 2.0)
+        try? graph.addEdge(from: nodes[1], to: nodes[2], withWeight: 2.0)
         XCTAssertEqual(graph.nodes.count, nodes.count)
         XCTAssertEqual(graph.edges.count, 4)
         XCTAssertEqual(graph.getEdgeWeight(from: nodes[1], to: nodes[2]), 2.0)
         XCTAssertEqual(graph.getNumberOfEdges(from: nodes[1]), 2)
+    }
+
+    func testSinglePageRankIteration() {
+        let graph = TextGraph()
+        let nodes = ["A", "B", "C", "D"].map { Sentence(text: $0) }
+
+        // Add an edge from [A] to all others.
+        for node in nodes[1 ..< nodes.count] {
+            try? graph.addEdge(from: nodes[0], to: node)
+        }
+
+        // Initialize node values.
+        graph.setInitialNodeValues()
+        XCTAssertTrue(graph.nodes[nodes[0]]! == 0.25)
+
+        // Perform one iteration of the PageRank algorithm.
+        let nextNodes = graph.runRoundOfPageRank(with: graph.nodes)
+
+        XCTAssertEqual(nextNodes[nodes[0]]!, nextNodes.values.max())
+        XCTAssertEqual(nextNodes[nodes[1]]!, nextNodes[nodes[2]]!)
+        XCTAssertEqual(nextNodes[nodes[1]]!, nextNodes[nodes[3]]!)
+    }
+
+    func testSimplePageRank() {
+        let graph = TextGraph()
+
+        // Running PageRank with no edges or nodes should throw an error.
+        XCTAssertThrowsError(try graph.runPageRank())
+
+        // Add an edge from [A] to all others.
+        let nodes = ["A", "B", "C", "D"].map { Sentence(text: $0) }
+        for node in nodes[1 ..< nodes.count] {
+            try? graph.addEdge(from: nodes[0], to: node)
+        }
+
+        // Run PageRank.
+        let rankedSentences = try! graph.runPageRank()
+
+        XCTAssertTrue(rankedSentences.didConverge)
+        XCTAssertLessThan(rankedSentences.iterations, 100)
+        XCTAssertGreaterThan(rankedSentences.iterations, 2)
+        XCTAssertEqual(rankedSentences.results[nodes[0]]!, rankedSentences.results.values.max())
+        XCTAssertEqual(rankedSentences.results[nodes[1]]!, rankedSentences.results[nodes[2]]!)
+        XCTAssertEqual(rankedSentences.results[nodes[1]]!, rankedSentences.results[nodes[3]]!)
     }
 }
