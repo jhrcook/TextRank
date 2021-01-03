@@ -10,6 +10,9 @@ import Foundation
 struct Sentence: Hashable {
     let text: String
     let words: Set<String>
+    var length: Int {
+        words.count
+    }
 
     init(text: String) {
         self.text = text
@@ -43,6 +46,12 @@ extension Sentence: CustomStringConvertible {
         text
     }
 }
+
+// extension Sentence: Equatable {
+//    static func == (lhs: Sentence, rhs: Sentence) -> Bool {
+//        lhs.hashValue == rhs.hashValue
+//    }
+// }
 
 extension StringProtocol {
     var words: [String] {

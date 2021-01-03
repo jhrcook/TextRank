@@ -116,6 +116,11 @@ class TextGraph {
     public func getNumberOfEdges(from node: Sentence) -> Int {
         return edges[node]?.count ?? 0
     }
+
+    public func clearGraph() {
+        nodes.removeAll()
+        edges.removeAll()
+    }
 }
 
 extension TextGraph {

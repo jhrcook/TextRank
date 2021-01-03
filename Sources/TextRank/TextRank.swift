@@ -17,25 +17,46 @@ class TextRank {
     public var summarizationFraction: Float = 0.2
     public var graph: TextGraph
     public var graphDamping: Float = 0.85
-
     public var sentences = [Sentence]()
 
     public init(text: String) {
         self.text = text
-        sentences = TextRank.splitIntoSentences(text)
-        graph = TextGraph()
+        sentences = TextRank.splitIntoSentences(text).filter { $0.length > 0 }
+        graph = TextGraph(damping: graphDamping)
     }
 
     public init(text: String, summarizationFraction: Float = 0.2, graphDamping: Float = 0.85) {
         self.text = text
-        sentences = TextRank.splitIntoSentences(text)
         self.summarizationFraction = summarizationFraction
         self.graphDamping = graphDamping
-        graph = TextGraph()
+        sentences = TextRank.splitIntoSentences(text).filter { $0.length > 0 }
+        graph = TextGraph(damping: graphDamping)
     }
 }
 
 extension TextRank {
+    /// Build the TextGraph using the sentences as nodes.
+    func buildGraph() {
+        graph.clearGraph()
+        var numberOfErrors = 0
+        for (i, s1) in sentences.enumerated() {
+            for s2 in sentences[(i + 1) ..< sentences.count] {
+                do {
+                    try graph.addEdge(from: s1, to: s2, withWeight: similarity(s1, s2))
+                } catch {
+                    numberOfErrors += 1
+                }
+            }
+        }
+        print("Number of errors thrown while building graph: \(numberOfErrors)")
+    }
+
+    /// Calculate the similarity of two senntences.
+    /// - Parameters:
+    ///   - a: First sentence.
+    ///   - b: Second sentence.
+    /// - Returns: Returns a float for how simillar the two sentences are. The larger the greater
+    ///   simillarity, the greater the value. Zero is the minimum value.
     func similarity(_ a: Sentence, _ b: Sentence) -> Float {
         if a.words.count == 0 || b.words.count == 0 { return 0.0 }
         let commonWordCount = Float(a.words.intersection(b.words).count)
@@ -45,6 +66,9 @@ extension TextRank {
 }
 
 extension TextRank {
+    /// Split text into sentences.
+    /// - Parameter text: Original text.
+    /// - Returns: An array of sentences.
     static func splitIntoSentences(_ text: String) -> [Sentence] {
         if text.isEmpty { return [] }
 
