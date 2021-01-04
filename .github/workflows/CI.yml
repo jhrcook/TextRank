@@ -1,4 +1,4 @@
-name: "Test Swift package"
+name: "GitHub Actions CI"
 on:
   push:
   pull_request:

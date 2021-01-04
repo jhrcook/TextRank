@@ -1,141 +1,87 @@
+//
+//  File.swift
+//
+//
+//  Created by Joshua on 1/1/21.
+//
+
 import Foundation
 
 class TextRank {
-    // MARK: User-facing variables
-
-    public var summarizeBy: SummarizationOption
-    public var textGraph: TextGraph<String>
-    public var maximumPageRankIterations: Int = 1000
-
-    // MARK: Internal variables
-
-    var splitText = [String: [String]]() // modified sentence: original sentence
-
-    // MARK: Initializers
-
-    /// Initialize a `TextRank` object by declaring how to split the text.
-    /// - Parameter summarizeBy: A single unit of the text.
-    public init(summarizeBy: SummarizationOption) {
-        self.summarizeBy = summarizeBy
-        textGraph = TextGraph<String>()
-    }
-
-    /// Initlize a `TextRank` object by declaring how to split the text and the parameters for the PageRank algorithm.
-    /// - Parameters:
-    ///   - summarizeBy: A single unit of the text.
-    ///   - startingScore: The initial score of each node.
-    ///   - damping: The probability of leaving the current 'page' and randomly selecting another.
-    ///   - convergenceThreshold: When the difference in scores between iterations is less than this value, the algorithm terminates.
-    public init(summarizeBy: SummarizationOption, startingScore: Float, damping: Float, convergenceThreshold: Float, maximumPageRankIterations: Int = 1000) {
-        self.summarizeBy = summarizeBy
-        textGraph = TextGraph<String>(startingScore: startingScore, damping: damping, convergenceThreshold: convergenceThreshold)
-        self.maximumPageRankIterations = maximumPageRankIterations
-    }
-
-    /// Run the summarization algorithm on the text.
-    /// - Returns: A dictionary mapping substrings of the original text to their summarization values.
-    public func summarise(_ text: String) throws -> TextGraph<String>.PageRankResult {
-        splitText = splitIntoTextMap(text)
-        buildGraph(text: Array(splitText.keys))
-        return try textGraph.executePageRank(maximumIterations: maximumPageRankIterations)
-    }
-
-    /// Build the dictionary mapping the modified strings to the original strings parsed from the text.
-    func splitIntoTextMap(_ text: String) -> [String: [String]] {
-        let textSplit = split(text, by: summarizeBy)
-        let textSplitCleaned = textSplit.map(modifyForTextComparisons)
-        var textSplitMap = [String: [String]]()
-        for (cleanText, originalText) in zip(textSplitCleaned, textSplit) {
-            if var mappedText = textSplitMap[cleanText] {
-                mappedText.append(originalText)
-                textSplitMap[cleanText] = mappedText
-            } else {
-                textSplitMap[cleanText] = [originalText]
-            }
-        }
-        return textSplitMap
-    }
-
-    /// Build the text graph as the connection of all substrings of the parsed text.
-    func buildGraph(text: [String]) {
-        for i in 0 ..< text.count {
-            for j in i + 1 ..< text.count {
-                let edgeWeight = similarity(between: text[i], and: text[j])
-                textGraph.addEdge(from: text[i], to: text[j], weight: edgeWeight)
-                textGraph.addEdge(from: text[j], to: text[i], weight: edgeWeight)
-            }
+    public var text: String {
+        didSet {
+            sentences = TextRank.splitIntoSentences(text)
         }
     }
 
-    /// Calculate the similarity between two strings.
-    /// - Parameters:
-    ///   - a: string one
-    ///   - b: string two
-    /// - Returns: A measure of similarity.
-    func similarity(between a: String, and b: String) -> Float {
-        let stopWords = StopWords.English
-        let aWords = Set(splitIntoSubstrings(a, .byWords)).filter { !stopWords.contains($0) }
-        let bWords = Set(splitIntoSubstrings(b, .byWords)).filter { !stopWords.contains($0) }
-        let nWordsInCommon = aWords.intersection(bWords).count
-        let logAWords = log(Float(aWords.count))
-        let logBWords = log(Float(bWords.count))
-        if aWords.count == 0 || bWords.count == 0 || nWordsInCommon == 0 || logAWords + logBWords == 0 {
-            return 0.0
-        }
+    public var summarizationFraction: Float = 0.2
+    public var graph: TextGraph
+    public var graphDamping: Float = 0.85
+    public var sentences = [Sentence]()
 
-        return max(Float(nWordsInCommon) / (logAWords + logBWords), 1)
+    public init(text: String) {
+        self.text = text
+        sentences = TextRank.splitIntoSentences(text).filter { $0.length > 0 }
+        graph = TextGraph(damping: graphDamping)
     }
 
-    /// Split the text into its substrings.
-    /// - Parameters:
-    ///   - text: Original text.
-    ///   - by: How to split the text.
-    /// - Returns: An array of *unique* strings.
-    func split(_ text: String, by: SummarizationOption) -> [String] {
-        switch by {
-        case .sentence:
-            return splitIntoSubstrings(text, .bySentences)
-        case .word:
-            return splitIntoSubstrings(text, .byWords)
-        }
+    public init(text: String, summarizationFraction: Float = 0.2, graphDamping: Float = 0.85) {
+        self.text = text
+        self.summarizationFraction = summarizationFraction
+        self.graphDamping = graphDamping
+        sentences = TextRank.splitIntoSentences(text).filter { $0.length > 0 }
+        graph = TextGraph(damping: graphDamping)
     }
 }
 
-// MARK: - Modifying text
+extension TextRank {
+    public func runPageRank() throws -> TextGraph.PageRankResult {
+        buildGraph()
+        return try graph.runPageRank()
+    }
+
+    /// Build the TextGraph using the sentences as nodes.
+    func buildGraph() {
+        graph.clearGraph()
+        var numberOfErrors = 0
+        for (i, s1) in sentences.enumerated() {
+            for s2 in sentences[(i + 1) ..< sentences.count] {
+                do {
+                    try graph.addEdge(from: s1, to: s2, withWeight: similarity(s1, s2))
+                } catch {
+                    numberOfErrors += 1
+                }
+            }
+        }
+    }
+
+    /// Calculate the similarity of two senntences.
+    /// - Parameters:
+    ///   - a: First sentence.
+    ///   - b: Second sentence.
+    /// - Returns: Returns a float for how simillar the two sentences are. The larger the greater
+    ///   simillarity, the greater the value. Zero is the minimum value.
+    func similarity(_ a: Sentence, _ b: Sentence) -> Float {
+        if a.words.count == 0 || b.words.count == 0 { return 0.0 }
+        let commonWordCount = Float(a.words.intersection(b.words).count)
+        let totalWordCount = log10(Float(a.words.count)) + log10(Float(b.words.count))
+        return totalWordCount == 0.0 ? 0.0 : commonWordCount / totalWordCount
+    }
+}
 
 extension TextRank {
-    /// Split some text into its substrings.
-    /// - Parameters:
-    ///   - text: Original text.
-    ///   - by: How to split the text.
-    /// - Returns: An array of *unique* strings.
-    func splitIntoSubstrings(_ text: String, _ by: NSString.EnumerationOptions) -> [String] {
-        if text.isEmpty { return [""] }
+    /// Split text into sentences.
+    /// - Parameter text: Original text.
+    /// - Returns: An array of sentences.
+    static func splitIntoSentences(_ text: String) -> [Sentence] {
+        if text.isEmpty { return [] }
 
-        var x = [String]()
-        text.enumerateSubstrings(in: text.range(of: text)!, options: [by, .localized]) { substring, _, _, _ in
+        var x = [Sentence]()
+        text.enumerateSubstrings(in: text.range(of: text)!, options: [.bySentences, .localized]) { substring, _, _, _ in
             if let substring = substring, !substring.isEmpty {
-                x.append(substring)
+                x.append(Sentence(text: substring.trimmingCharacters(in: .whitespacesAndNewlines)))
             }
         }
         return Array(Set(x))
-    }
-
-    /// Modify a string to be compared against all other strings.
-    /// - Parameter string: Original string.
-    /// - Returns: Modified string.
-    func modifyForTextComparisons(_ string: String) -> String {
-        return string
-            .lowercased()
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .trimmingCharacters(in: .punctuationCharacters)
-    }
-}
-
-// MARK: - TextRank enums
-
-extension TextRank {
-    enum SummarizationOption {
-        case sentence, word
     }
 }
