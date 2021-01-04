@@ -59,4 +59,18 @@ class TextRankTests: XCTestCase {
             textRank.graph.getEdgeWeight(from: nodes[0], to: nodes[2])
         )
     }
+
+    func testSimplePageRank() throws {
+        let text = "Dog cat bird. Sheep dog cat. Horse cow fish. Horse cat lizard. Lizard dragon bird."
+        let textRank = TextRank(text: text)
+        let pageRankResults = try textRank.runPageRank()
+        XCTAssertTrue(pageRankResults.didConverge)
+        XCTAssertLessThan(pageRankResults.iterations, 20)
+        XCTAssertEqual(pageRankResults.results.count, 5)
+        print(pageRankResults.results)
+        XCTAssertEqual(
+            pageRankResults.results[Sentence(text: "Horse cat lizard.")],
+            pageRankResults.results.values.max()
+        )
+    }
 }

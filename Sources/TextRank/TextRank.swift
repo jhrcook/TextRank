@@ -35,6 +35,11 @@ class TextRank {
 }
 
 extension TextRank {
+    public func runPageRank() throws -> TextGraph.PageRankResult {
+        buildGraph()
+        return try graph.runPageRank()
+    }
+
     /// Build the TextGraph using the sentences as nodes.
     func buildGraph() {
         graph.clearGraph()
@@ -48,7 +53,6 @@ extension TextRank {
                 }
             }
         }
-        print("Number of errors thrown while building graph: \(numberOfErrors)")
     }
 
     /// Calculate the similarity of two senntences.
@@ -75,7 +79,7 @@ extension TextRank {
         var x = [Sentence]()
         text.enumerateSubstrings(in: text.range(of: text)!, options: [.bySentences, .localized]) { substring, _, _, _ in
             if let substring = substring, !substring.isEmpty {
-                x.append(Sentence(text: substring))
+                x.append(Sentence(text: substring.trimmingCharacters(in: .whitespacesAndNewlines)))
             }
         }
         return Array(Set(x))
