@@ -26,6 +26,7 @@ public class TextRank {
 
     public init(text: String) {
         self.text = text
+        sentences = TextRank.splitIntoSentences(text).filter { $0.length > 0 }
         graph = TextGraph(damping: graphDamping)
     }
 
@@ -33,6 +34,7 @@ public class TextRank {
         self.text = text
         self.summarizationFraction = summarizationFraction
         self.graphDamping = graphDamping
+        sentences = TextRank.splitIntoSentences(text).filter { $0.length > 0 }
         graph = TextGraph(damping: graphDamping)
     }
 }
@@ -86,5 +88,23 @@ extension TextRank {
             }
         }
         return Array(Set(x))
+    }
+}
+
+// Filtering and organizing ranked results.
+public extension TextRank {
+    func filterTopSentencesFrom(_ results: TextGraph.PageRankResult, top percentile: Float) -> TextGraph.NodeList {
+        let idx = Int(Float(results.results.count) * percentile)
+        let cutoffScore: Float = results.results.values.sorted()[idx]
+
+        var filteredNodeList: TextGraph.NodeList = [:]
+
+        for (sentence, value) in results.results {
+            if value >= cutoffScore {
+                filteredNodeList[sentence] = value
+            }
+        }
+
+        return filteredNodeList
     }
 }

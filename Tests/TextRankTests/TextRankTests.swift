@@ -73,4 +73,18 @@ class TextRankTests: XCTestCase {
             pageRankResults.results.values.max()
         )
     }
+
+    func testFilteringTopSentences() throws {
+        // Given
+        let text = "Dog cat bird. Sheep dog cat. Horse cow fish. Horse cat lizard. Lizard dragon bird."
+        let textRank = TextRank(text: text)
+        let results = try textRank.runPageRank()
+
+        // When
+        let filteredResults = textRank.filterTopSentencesFrom(results, top: 0.75)
+
+        // Then
+        XCTAssertTrue(filteredResults.count < results.results.count)
+        XCTAssertTrue(filteredResults.count == 2)
+    }
 }
