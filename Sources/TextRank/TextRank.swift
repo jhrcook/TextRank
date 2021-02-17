@@ -7,10 +7,10 @@
 
 import Foundation
 
-class TextRank {
+public class TextRank {
     public var text: String {
         didSet {
-            sentences = TextRank.splitIntoSentences(text)
+            sentences = TextRank.splitIntoSentences(text).filter { $0.length > 0 }
         }
     }
 
@@ -19,9 +19,13 @@ class TextRank {
     public var graphDamping: Float = 0.85
     public var sentences = [Sentence]()
 
+    public init() {
+        text = ""
+        graph = TextGraph(damping: graphDamping)
+    }
+
     public init(text: String) {
         self.text = text
-        sentences = TextRank.splitIntoSentences(text).filter { $0.length > 0 }
         graph = TextGraph(damping: graphDamping)
     }
 
@@ -29,7 +33,6 @@ class TextRank {
         self.text = text
         self.summarizationFraction = summarizationFraction
         self.graphDamping = graphDamping
-        sentences = TextRank.splitIntoSentences(text).filter { $0.length > 0 }
         graph = TextGraph(damping: graphDamping)
     }
 }

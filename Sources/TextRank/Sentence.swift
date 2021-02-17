@@ -7,19 +7,19 @@
 
 import Foundation
 
-struct Sentence: Hashable {
-    let text: String
-    let words: Set<String>
-    var length: Int {
+public struct Sentence: Hashable {
+    public let text: String
+    public let words: Set<String>
+    public var length: Int {
         words.count
     }
 
-    init(text: String) {
+    public init(text: String) {
         self.text = text
         words = Sentence.removeStopWords(from: Sentence.clean(self.text))
     }
 
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(text)
     }
 
@@ -42,7 +42,7 @@ struct Sentence: Hashable {
 }
 
 extension Sentence: CustomStringConvertible {
-    var description: String {
+    public var description: String {
         text
     }
 }

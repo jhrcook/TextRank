@@ -7,7 +7,7 @@
 
 import Foundation
 
-class TextGraph {
+public class TextGraph {
     public typealias NodeList = [Sentence: Float]
 
     // MARK: PageRank meta-constants
@@ -125,9 +125,9 @@ class TextGraph {
 
 extension TextGraph {
     public struct PageRankResult {
-        let didConverge: Bool
-        let iterations: Int
-        let results: NodeList
+        public let didConverge: Bool
+        public let iterations: Int
+        public let results: NodeList
     }
 
     enum PageRankError: Error {
