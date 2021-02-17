@@ -14,8 +14,8 @@ class TextGraphTests: XCTestCase {
 
     func testAddingOneEdge() {
         let graph = TextGraph()
-        let nodeA = Sentence(text: "node a")
-        let nodeB = Sentence(text: "node b")
+        let nodeA = Sentence(text: "node a", originalTextIndex: 0)
+        let nodeB = Sentence(text: "node b", originalTextIndex: 1)
         // Add edge between two nodes.
         try? graph.addEdge(from: nodeA, to: nodeB)
 
@@ -45,7 +45,7 @@ class TextGraphTests: XCTestCase {
 
     func testAddingMultipleEdges() {
         let graph = TextGraph()
-        let nodes = ["A", "B", "C", "D"].map { Sentence(text: $0) }
+        let nodes = ["A", "B", "C", "D"].enumerated().map { Sentence(text: $1, originalTextIndex: $0) }
 
         // Add an edge from [A] to all others.
         for node in nodes[1 ..< nodes.count] {
@@ -68,7 +68,7 @@ class TextGraphTests: XCTestCase {
 
     func testSinglePageRankIteration() {
         let graph = TextGraph()
-        let nodes = ["A", "B", "C", "D"].map { Sentence(text: $0) }
+        let nodes = ["A", "B", "C", "D"].enumerated().map { Sentence(text: $1, originalTextIndex: $0) }
 
         // Add an edge from [A] to all others.
         for node in nodes[1 ..< nodes.count] {
@@ -94,7 +94,7 @@ class TextGraphTests: XCTestCase {
         XCTAssertThrowsError(try graph.runPageRank())
 
         // Add an edge from [A] to all others.
-        let nodes = ["A", "B", "C", "D"].map { Sentence(text: $0) }
+        let nodes = ["A", "B", "C", "D"].enumerated().map { Sentence(text: $1, originalTextIndex: $0) }
         for node in nodes[1 ..< nodes.count] {
             try? graph.addEdge(from: nodes[0], to: node)
         }

@@ -84,7 +84,7 @@ extension TextRank {
         var x = [Sentence]()
         text.enumerateSubstrings(in: text.range(of: text)!, options: [.bySentences, .localized]) { substring, _, _, _ in
             if let substring = substring, !substring.isEmpty {
-                x.append(Sentence(text: substring.trimmingCharacters(in: .whitespacesAndNewlines)))
+                x.append(Sentence(text: substring.trimmingCharacters(in: .whitespacesAndNewlines), originalTextIndex: x.count))
             }
         }
         return Array(Set(x))
@@ -93,6 +93,11 @@ extension TextRank {
 
 // Filtering and organizing ranked results.
 public extension TextRank {
+    /// Filter the results of PageRank by percentile.
+    /// - Parameters:
+    ///   - results: The results of running PageRank.
+    ///   - percentile: The top percentile to filter.
+    /// - Returns: A node list of only the top percentile requested.
     func filterTopSentencesFrom(_ results: TextGraph.PageRankResult, top percentile: Float) -> TextGraph.NodeList {
         let idx = Int(Float(results.results.count) * percentile)
         let cutoffScore: Float = results.results.values.sorted()[idx]

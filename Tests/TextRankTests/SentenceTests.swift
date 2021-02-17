@@ -3,7 +3,7 @@ import XCTest
 
 class SentenceTests: XCTestCase {
     func testInitialization() {
-        let sentence = Sentence(text: "word")
+        let sentence = Sentence(text: "word", originalTextIndex: 0)
         XCTAssertEqual(sentence.text, "word")
         XCTAssertEqual(sentence.words, Set(["word"]))
     }
@@ -15,7 +15,7 @@ class SentenceTests: XCTestCase {
             "some - punc.tuation /|\\ #$ and even, more) pretty !@,. random?": ["punc", "tuation", "pretty", "random"],
         ]
         for (original, clean) in testCleaningCases {
-            let s = Sentence(text: original)
+            let s = Sentence(text: original, originalTextIndex: 0)
             XCTAssertEqual(s.words, Set(clean))
         }
     }
