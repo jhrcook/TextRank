@@ -100,7 +100,7 @@ public extension TextRank {
     /// - Returns: A node list of only the top percentile requested.
     func filterTopSentencesFrom(_ results: TextGraph.PageRankResult, top percentile: Float) -> TextGraph.NodeList {
         let idx = Int(Float(results.results.count) * percentile)
-        let cutoffScore: Float = results.results.values.sorted()[idx]
+        let cutoffScore: Float = results.results.values.sorted()[min(idx, results.results.count - 1)]
 
         var filteredNodeList: TextGraph.NodeList = [:]
 
