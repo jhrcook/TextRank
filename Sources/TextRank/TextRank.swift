@@ -26,6 +26,7 @@ public class TextRank {
 
     public init(text: String) {
         self.text = text
+        sentences = TextRank.splitIntoSentences(text).filter { $0.length > 0 }
         graph = TextGraph(damping: graphDamping)
     }
 
@@ -33,6 +34,7 @@ public class TextRank {
         self.text = text
         self.summarizationFraction = summarizationFraction
         self.graphDamping = graphDamping
+        sentences = TextRank.splitIntoSentences(text).filter { $0.length > 0 }
         graph = TextGraph(damping: graphDamping)
     }
 }
@@ -82,9 +84,32 @@ extension TextRank {
         var x = [Sentence]()
         text.enumerateSubstrings(in: text.range(of: text)!, options: [.bySentences, .localized]) { substring, _, _, _ in
             if let substring = substring, !substring.isEmpty {
-                x.append(Sentence(text: substring.trimmingCharacters(in: .whitespacesAndNewlines)))
+                x.append(Sentence(text: substring.trimmingCharacters(in: .whitespacesAndNewlines), originalTextIndex: x.count))
             }
         }
         return Array(Set(x))
+    }
+}
+
+// Filtering and organizing ranked results.
+public extension TextRank {
+    /// Filter the results of PageRank by percentile.
+    /// - Parameters:
+    ///   - results: The results of running PageRank.
+    ///   - percentile: The top percentile to filter.
+    /// - Returns: A node list of only the top percentile requested.
+    func filterTopSentencesFrom(_ results: TextGraph.PageRankResult, top percentile: Float) -> TextGraph.NodeList {
+        let idx = Int(Float(results.results.count) * percentile)
+        let cutoffScore: Float = results.results.values.sorted()[min(idx, results.results.count - 1)]
+
+        var filteredNodeList: TextGraph.NodeList = [:]
+
+        for (sentence, value) in results.results {
+            if value >= cutoffScore {
+                filteredNodeList[sentence] = value
+            }
+        }
+
+        return filteredNodeList
     }
 }

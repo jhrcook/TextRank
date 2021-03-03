@@ -14,8 +14,11 @@ public struct Sentence: Hashable {
         words.count
     }
 
-    public init(text: String) {
+    public let originalTextIndex: Int
+
+    public init(text: String, originalTextIndex: Int) {
         self.text = text
+        self.originalTextIndex = originalTextIndex
         words = Sentence.removeStopWords(from: Sentence.clean(self.text))
     }
 

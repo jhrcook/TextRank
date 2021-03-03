@@ -10,33 +10,33 @@ class TextRankTests: XCTestCase {
     func testComparingSentences() {
         let textRank = TextRank(text: "")
 
-        var s1 = Sentence(text: "dog bear sheep lion")
-        var s2 = Sentence(text: "dog bear sheep lion")
+        var s1 = Sentence(text: "dog bear sheep lion", originalTextIndex: 0)
+        var s2 = Sentence(text: "dog bear sheep lion", originalTextIndex: 1)
         var sim = textRank.similarity(s1, s2)
         XCTAssertEqual(sim, 4.0 / (log10(4.0) + log10(4.0)))
 
-        s1 = Sentence(text: "dog bear sheep lion")
-        s2 = Sentence(text: "dog bear sheep")
+        s1 = Sentence(text: "dog bear sheep lion", originalTextIndex: 0)
+        s2 = Sentence(text: "dog bear sheep", originalTextIndex: 1)
         sim = textRank.similarity(s1, s2)
         XCTAssertEqual(sim, 3.0 / (log10(4.0) + log10(3.0)))
 
-        s1 = Sentence(text: "dog bear sheep lion to there")
-        s2 = Sentence(text: "dog bear sheep we them")
+        s1 = Sentence(text: "dog bear sheep lion to there", originalTextIndex: 0)
+        s2 = Sentence(text: "dog bear sheep we them", originalTextIndex: 1)
         sim = textRank.similarity(s1, s2)
         XCTAssertEqual(sim, 3.0 / (log10(4.0) + log10(3.0)))
 
-        s1 = Sentence(text: "")
-        s2 = Sentence(text: "dog bear sheep we them")
+        s1 = Sentence(text: "", originalTextIndex: 0)
+        s2 = Sentence(text: "dog bear sheep we them", originalTextIndex: 1)
         sim = textRank.similarity(s1, s2)
         XCTAssertEqual(sim, 0.0)
 
-        s1 = Sentence(text: "there will")
-        s2 = Sentence(text: "dog bear sheep we them")
+        s1 = Sentence(text: "there will", originalTextIndex: 0)
+        s2 = Sentence(text: "dog bear sheep we them", originalTextIndex: 1)
         sim = textRank.similarity(s1, s2)
         XCTAssertEqual(sim, 0.0)
 
-        s1 = Sentence(text: "fox peacock there will")
-        s2 = Sentence(text: "dog bear sheep we them")
+        s1 = Sentence(text: "fox peacock there will", originalTextIndex: 0)
+        s2 = Sentence(text: "dog bear sheep we them", originalTextIndex: 1)
         sim = textRank.similarity(s1, s2)
         XCTAssertEqual(sim, 0.0)
     }
@@ -69,8 +69,22 @@ class TextRankTests: XCTestCase {
         XCTAssertEqual(pageRankResults.results.count, 5)
         print(pageRankResults.results)
         XCTAssertEqual(
-            pageRankResults.results[Sentence(text: "Horse cat lizard.")],
+            pageRankResults.results[Sentence(text: "Horse cat lizard.", originalTextIndex: 3)],
             pageRankResults.results.values.max()
         )
+    }
+
+    func testFilteringTopSentences() throws {
+        // Given
+        let text = "Dog cat bird. Sheep dog cat. Horse cow fish. Horse cat lizard. Lizard dragon bird."
+        let textRank = TextRank(text: text)
+        let results = try textRank.runPageRank()
+
+        // When
+        let filteredResults = textRank.filterTopSentencesFrom(results, top: 0.75)
+
+        // Then
+        XCTAssertTrue(filteredResults.count < results.results.count)
+        XCTAssertTrue(filteredResults.count == 2)
     }
 }
