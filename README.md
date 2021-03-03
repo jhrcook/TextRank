@@ -3,7 +3,7 @@
 ![Swift](https://img.shields.io/badge/Swift-Package-FA7343.svg?style=flat&logo=swift)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![SwiftFormat](https://img.shields.io/badge/SwfitFormat-enabled-A166E6)](https://github.com/nicklockwood/SwiftFormat)
-![GitHub Actions CI](https://github.com/jhrcook/TextRank/workflows/GitHub%20Actions%20CI/badge.svg)
+[![GitHub Actions CI](https://github.com/jhrcook/TextRank/actions/workflows/GitHub%20Actions%20CI/badge.svg)](https://github.com/jhrcook/TextRank/actions/workflows/CI.yml)
 
 A Swift package that implements the ['TextRank' algorithm](https://web.eecs.umich.edu/~mihalcea/papers/mihalcea.emnlp04.pdf) for summarization.
 This algorithm uses the [PageRank (PR) algorithm](https://en.wikipedia.org/wiki/PageRank) to rank nodes by centrality in a weighted, undirected network where the nodes are sentences and edges indicate the degree of similarity of two sentences.

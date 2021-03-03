@@ -1,7 +1,8 @@
 name: "GitHub Actions CI"
 on:
   push:
-    - main
+    branches:
+      - main
   pull_request:
     types: [opened]
   issues:
