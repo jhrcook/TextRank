@@ -8,27 +8,6 @@ on:
   schedule:
     - cron: "0 5 1 * *"
 jobs:
-  # test-swift-latest:
-  #   runs-on: ubuntu-18.04
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: docker://swift:latest
-  #     - run: swift test --parallel
-  #
-  # test-swift-5-3:
-  #   runs-on:  ubuntu-18.04
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: docker://swift:5.3
-  #     - run: swift test --parallel
-  #
-  # test-swift-5-2:
-  #   runs-on: ubuntu-18.04
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: docker://swift:5.2
-  #     - run: swift test --parallel
-
   test-swift-macos:
     runs-on: ${{ matrix.os }}
     strategy:
