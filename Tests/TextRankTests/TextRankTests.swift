@@ -87,4 +87,40 @@ class TextRankTests: XCTestCase {
         XCTAssertTrue(filteredResults.count < results.results.count)
         XCTAssertTrue(filteredResults.count == 2)
     }
+
+    func testStopwordsAreRemoved() {
+        // Given
+        let text = "Here are some sentences dog cat. With intentional stopwords gator. And some words that are not."
+
+        // When
+        let textRank = TextRank(text: text)
+
+        // Then
+        XCTAssertEqual(textRank.sentences.count, 2)
+        XCTAssertEqual(textRank.sentences[0].length, 3)
+        XCTAssertEqual(textRank.sentences.filter { $0.originalTextIndex == 0 }[0].words,
+                       Set(["sentences", "dog", "cat"]))
+        XCTAssertEqual(textRank.sentences.filter { $0.originalTextIndex == 1 }[0].words,
+                       Set(["intentional", "stopwords", "gator"]))
+        XCTAssertEqual(textRank.sentences[1].length, 3)
+    }
+
+    func testAdditionalStopwords() {
+        // Given
+        let text = "Here are some sentences dog cat. With intentional stopwords gator. And some words that are not."
+        let additionalStopwords = ["dog", "gator"]
+
+        // When
+        let textRank = TextRank(text: text)
+        textRank.stopwords = additionalStopwords
+
+        // Then
+        XCTAssertEqual(textRank.sentences.count, 2)
+        XCTAssertEqual(textRank.sentences[0].length, 2)
+        XCTAssertEqual(textRank.sentences.filter { $0.originalTextIndex == 0 }[0].words,
+                       Set(["sentences", "cat"]))
+        XCTAssertEqual(textRank.sentences.filter { $0.originalTextIndex == 1 }[0].words,
+                       Set(["intentional", "stopwords"]))
+        XCTAssertEqual(textRank.sentences[1].length, 2)
+    }
 }

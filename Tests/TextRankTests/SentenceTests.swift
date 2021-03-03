@@ -19,4 +19,38 @@ class SentenceTests: XCTestCase {
             XCTAssertEqual(s.words, Set(clean))
         }
     }
+
+    func testRemovalOfStopWords() {
+        // Given
+        let text = "here are some words to be"
+
+        // When
+        let sentence = Sentence(text: text, originalTextIndex: 0)
+
+        // Then
+        XCTAssertEqual(sentence.length, 0)
+    }
+
+    func testRemovalOfStopWordsButNotMeaningfulWords() {
+        // Given
+        let text = "here are some words to be lion"
+
+        // When
+        let sentence = Sentence(text: text, originalTextIndex: 0)
+
+        // Then
+        XCTAssertEqual(sentence.length, 1)
+        XCTAssertEqual(sentence.words, Set(["lion"]))
+    }
+
+    func testRemovalOfStopWordsAndAdditionalStopwords() {
+        // Given
+        let text = "here are some words to be lion"
+
+        // When
+        let sentence = Sentence(text: text, originalTextIndex: 0, additionalStopwords: ["lion"])
+
+        // Then
+        XCTAssertEqual(sentence.length, 0)
+    }
 }
