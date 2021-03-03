@@ -18,7 +18,11 @@ public class TextRank {
     public var sentences = [Sentence]()
     public var summarizationFraction: Float = 0.2
     public var graphDamping: Float = 0.85
-    public var stopwords = [String]()
+    public var stopwords = [String]() {
+        didSet {
+            textToSentences()
+        }
+    }
 
     public init() {
         text = ""
