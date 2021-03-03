@@ -16,10 +16,11 @@ public struct Sentence: Hashable {
 
     public let originalTextIndex: Int
 
-    public init(text: String, originalTextIndex: Int) {
+    public init(text: String, originalTextIndex: Int, additionalStopwords: [String] = [String]()) {
         self.text = text
         self.originalTextIndex = originalTextIndex
-        words = Sentence.removeStopWords(from: Sentence.clean(self.text))
+        words = Sentence.removeStopWords(from: Sentence.clean(self.text),
+                                         additionalStopwords: additionalStopwords)
     }
 
     public func hash(into hasher: inout Hasher) {
@@ -37,9 +38,9 @@ public struct Sentence: Hashable {
             .words
     }
 
-    static func removeStopWords(from w: [String]) -> Set<String> {
+    static func removeStopWords(from w: [String], additionalStopwords: [String] = [String]()) -> Set<String> {
         var wordSet = Set(w)
-        wordSet.subtract(Stopwords.English)
+        wordSet.subtract(Stopwords.English + additionalStopwords)
         return wordSet
     }
 }

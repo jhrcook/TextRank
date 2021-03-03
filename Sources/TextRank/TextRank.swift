@@ -10,14 +10,15 @@ import Foundation
 public class TextRank {
     public var text: String {
         didSet {
-            sentences = TextRank.splitIntoSentences(text).filter { $0.length > 0 }
+            textToSentences()
         }
     }
 
-    public var summarizationFraction: Float = 0.2
     public var graph: TextGraph
-    public var graphDamping: Float = 0.85
     public var sentences = [Sentence]()
+    public var summarizationFraction: Float = 0.2
+    public var graphDamping: Float = 0.85
+    public var stopwords = [String]()
 
     public init() {
         text = ""
@@ -26,16 +27,20 @@ public class TextRank {
 
     public init(text: String) {
         self.text = text
-        sentences = TextRank.splitIntoSentences(text).filter { $0.length > 0 }
         graph = TextGraph(damping: graphDamping)
+        textToSentences()
     }
 
     public init(text: String, summarizationFraction: Float = 0.2, graphDamping: Float = 0.85) {
         self.text = text
         self.summarizationFraction = summarizationFraction
         self.graphDamping = graphDamping
-        sentences = TextRank.splitIntoSentences(text).filter { $0.length > 0 }
         graph = TextGraph(damping: graphDamping)
+        textToSentences()
+    }
+
+    func textToSentences() {
+        sentences = TextRank.splitIntoSentences(text, additionalStopwords: stopwords).filter { $0.length > 0 }
     }
 }
 
@@ -78,13 +83,17 @@ extension TextRank {
     /// Split text into sentences.
     /// - Parameter text: Original text.
     /// - Returns: An array of sentences.
-    static func splitIntoSentences(_ text: String) -> [Sentence] {
+    static func splitIntoSentences(_ text: String, additionalStopwords stopwords: [String] = [String]()) -> [Sentence] {
         if text.isEmpty { return [] }
 
         var x = [Sentence]()
         text.enumerateSubstrings(in: text.range(of: text)!, options: [.bySentences, .localized]) { substring, _, _, _ in
             if let substring = substring, !substring.isEmpty {
-                x.append(Sentence(text: substring.trimmingCharacters(in: .whitespacesAndNewlines), originalTextIndex: x.count))
+                x.append(
+                    Sentence(text: substring.trimmingCharacters(in: .whitespacesAndNewlines),
+                             originalTextIndex: x.count,
+                             additionalStopwords: stopwords)
+                )
             }
         }
         return Array(Set(x))
@@ -101,15 +110,12 @@ public extension TextRank {
     func filterTopSentencesFrom(_ results: TextGraph.PageRankResult, top percentile: Float) -> TextGraph.NodeList {
         let idx = Int(Float(results.results.count) * percentile)
         let cutoffScore: Float = results.results.values.sorted()[min(idx, results.results.count - 1)]
-
         var filteredNodeList: TextGraph.NodeList = [:]
-
         for (sentence, value) in results.results {
             if value >= cutoffScore {
                 filteredNodeList[sentence] = value
             }
         }
-
         return filteredNodeList
     }
 }
