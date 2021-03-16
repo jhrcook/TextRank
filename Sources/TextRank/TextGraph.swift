@@ -130,7 +130,7 @@ extension TextGraph {
         public let results: NodeList
     }
 
-    enum PageRankError: Error {
+    public enum PageRankError: Error {
         case EmptyNodeList, EmptyEdgeList
     }
 
